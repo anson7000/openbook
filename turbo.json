@@ -21,10 +21,6 @@
     },
     "format": {
       "cache": true
-    },
-    "ci": {
-      "dependsOn": ["lint", "build"],
-      "cache": false
     }
   }
 }
