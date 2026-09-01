@@ -7,7 +7,7 @@ const app: Express = express();
 app.use(corsMiddleware);
 
 app.get("/", (_: Request, res: Response) => {
-  res.send("Hello World! api");
+  res.send("Hello World!");
 });
 
 app.get("/api/data", (_: Request, res: Response) => {
