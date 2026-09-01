@@ -1,9 +1,8 @@
 import baseConfig from "./eslint.config.base.js";
 import js from "@eslint/js";
 import globals from "globals";
-import tseslint from "typescript-eslint";
-import pluginReact from "eslint-plugin-react";
-import { defineConfig, globalIgnores } from "eslint/config";
+import eslintReact from "@eslint-react/eslint-plugin";
+import { defineConfig } from "eslint/config";
 
 /** @type {import("eslint").Linter.Config[]} */
 export default defineConfig([
@@ -14,6 +13,5 @@ export default defineConfig([
     extends: ["js/recommended"],
     languageOptions: { globals: { ...globals.browser } },
   },
-  pluginReact.configs.flat.recommended,
-  pluginReact.configs.flat["jsx-runtime"],
+  eslintReact.configs.recommended,
 ]);

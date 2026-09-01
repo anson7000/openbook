@@ -1,8 +1,7 @@
 import baseConfig from "./eslint.config.base.js";
 import js from "@eslint/js";
 import globals from "globals";
-import tseslint from "typescript-eslint";
-import { defineConfig, globalIgnores } from "eslint/config";
+import { defineConfig } from "eslint/config";
 
 /** @type {import("eslint").Linter.Config[]} */
 export default defineConfig([
