@@ -4,7 +4,7 @@ function App() {
   const [message, setMessage] = useState<string | null>(null);
 
   const handleClick = async () => {
-    const baseUrl = import.meta.env.API_URL;
+    const baseUrl = import.meta.env.VITE_API_URL;
     const response = await fetch(`${baseUrl}/api/data`);
     const data = await response.json();
     setMessage(data.message);
