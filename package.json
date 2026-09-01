@@ -9,6 +9,7 @@
     "format": "turbo run format",
     "deploy-build": "turbo run lint build"
   },
+  "packageManager": "pnpm@11.10.0",
   "devEngines": {
     "packageManager": {
       "name": "pnpm",
