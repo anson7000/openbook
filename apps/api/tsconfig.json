@@ -1,0 +1,8 @@
+{
+  "extends": "@csg/typescript-config/tsconfig.express.json",
+  "compilerOptions": {
+    "rootDir": "src",
+    "outDir": "dist"
+  }
+}
+  

@@ -1,0 +1,21 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "lib": ["ES2022"],
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "target": "ES2022",
+
+    // Node.js specific
+    "types": ["node"],
+
+    // CommonJS compatibility for better Node.js support
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true
+  },
+
+  "ts-node": {
+    "esm": true,
+    "experimentalSpecifierResolution": "node"
+  }
+}

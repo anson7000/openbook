@@ -1,0 +1,19 @@
+{
+  "name": "@csg/eslint-config",
+  "version": "0.0.0",
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.9.1",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-turbo": "^2.10.12",
+    "globals": "^17.8.0",
+    "typescript-eslint": "^8.68.0"
+  },
+  "exports": {
+    "./base": "./eslint.config.base.js",
+    "./express": "./eslint.config.express.js",
+    "./react": "./eslint.config.react.js"
+  },
+  "type": "module"
+}

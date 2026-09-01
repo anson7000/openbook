@@ -1,0 +1,22 @@
+{
+  "name": "@csg/api",
+  "version": "1.0.0",
+  "type": "module",
+  "dependencies": {
+    "express": "^5.2.1"
+  },
+  "devDependencies": {
+    "@csg/eslint-config": "workspace:*",
+    "@csg/typescript-config": "workspace:*",
+    "@types/express": "^5.0.6",
+    "@types/node": "^26.1.1",
+    "tsx": "^4.23.1"
+  },
+  "scripts": {
+    "dev": "tsx watch src/app.ts",
+    "check-types": "tsc --noEmit",
+    "build": "tsc",
+    "lint": "eslint .",
+    "format": "prettier src --write"
+  }
+}

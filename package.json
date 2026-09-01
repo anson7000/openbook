@@ -1,0 +1,25 @@
+{
+  "name": "monorepo-template",
+  "version": "1.0.0",
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "lint": "turbo run lint",
+    "check-types": "turbo run check-types",
+    "format": "turbo run format"
+  },
+  "devEngines": {
+    "packageManager": {
+      "name": "pnpm",
+      "version": "11.10.0",
+      "onFail": "download"
+    }
+  },
+  "type": "module",
+  "devDependencies": {
+    "prettier": "^3.9.6",
+    "turbo": "^2.10.7",
+    "typescript": "~6.0.3",
+    "eslint": "^10.7.0"
+  }
+}
