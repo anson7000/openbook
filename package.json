@@ -7,7 +7,7 @@
     "lint": "turbo run lint",
     "check-types": "turbo run check-types",
     "format": "turbo run format",
-    "deploy": "turbo run lint build"
+    "deploy-build": "turbo run lint build"
   },
   "devEngines": {
     "packageManager": {
