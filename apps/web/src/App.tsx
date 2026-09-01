@@ -4,7 +4,8 @@ function App() {
   const [message, setMessage] = useState<string | null>(null);
 
   const handleClick = async () => {
-    const response = await fetch("http://localhost:3000/api/data");
+    const baseUrl = import.meta.env.API_URL;
+    const response = await fetch(`${baseUrl}/api/data`);
     const data = await response.json();
     setMessage(data.message);
   };
