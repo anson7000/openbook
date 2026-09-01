@@ -7,5 +7,6 @@ app.get("/", (_: Request, res: Response) => {
 });
 
 app.listen(3000, () => {
-  console.log(`Server running on http://localhost:3000`);
+  let message = "Server running on http://localhost:3000";
+  console.log(message);
 });
