@@ -1,4 +1,5 @@
 import "dotenv/config";
+import "module-alias/register";
 import express, { type Express, type Request, type Response } from "express";
 import { corsMiddleware } from "@/middleware/cors.middleware.js";
 
