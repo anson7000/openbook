@@ -1,17 +1,10 @@
+import "dotenv/config";
 import express, { type Express, type Request, type Response } from "express";
-import cors from "cors";
+import { corsMiddleware } from "@/middleware/cors.middleware.js";
 
 const app: Express = express();
 
-app.use(
-  cors({
-    origin: "http://localhost:5173",
-    methods: ["GET", "POST", "PUT", "DELETE"],
-    allowedHeaders: ["Content-Type", "Authorization"],
-    credentials: true,
-    maxAge: 86400,
-  }),
-);
+app.use(corsMiddleware);
 
 app.get("/", (_: Request, res: Response) => {
   res.send("Hello World! api");
