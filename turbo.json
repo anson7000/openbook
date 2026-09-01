@@ -5,7 +5,6 @@
     "build": {
       "dependsOn": ["^build"],
       "outputs": ["dist/**"],
-      "env": ["NODE_ENV"],
       "cache": true
     },
     "lint": {
@@ -22,6 +21,10 @@
     },
     "format": {
       "cache": true
+    },
+    "ci": {
+      "dependsOn": ["lint", "build"],
+      "cache": false
     }
   }
 }
