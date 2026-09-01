@@ -10,7 +10,8 @@
     },
     "lint": {
       "dependsOn": ["^lint"],
-      "cache": true
+      "cache": true,
+      "env": ["PORT", "NODE_ENV"]
     },
     "check-types": {
       "dependsOn": ["^check-types"],
