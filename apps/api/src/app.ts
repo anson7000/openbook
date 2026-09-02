@@ -10,7 +10,7 @@ app.get("/", (_: Request, res: Response) => {
   res.send("Hello World!");
 });
 
-app.get("/api/data", (_: Request, res: Response) => {
+app.get("/data", (_: Request, res: Response) => {
   res.json({ message: "Hello from the API!" });
 });
 

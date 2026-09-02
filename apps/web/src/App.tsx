@@ -5,7 +5,7 @@ function App() {
 
   const handleClick = async () => {
     const baseUrl = import.meta.env.VITE_API_URL;
-    const response = await fetch(`${baseUrl}/api/data`);
+    const response = await fetch(`${baseUrl}/data`);
     const data = await response.json();
     setMessage(data.message);
   };
