@@ -1,5 +1,5 @@
 {
-  "name": "@csg/eslint-config",
+  "name": "@openbook/eslint-config",
   "version": "0.0.0",
   "devDependencies": {
     "@eslint-react/eslint-plugin": "^5.18.6",
