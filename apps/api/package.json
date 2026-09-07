@@ -1,5 +1,5 @@
 {
-  "name": "@csg/api",
+  "name": "@openbook/api",
   "version": "1.0.0",
   "type": "module",
   "dependencies": {
@@ -8,8 +8,8 @@
     "express": "^5.2.1"
   },
   "devDependencies": {
-    "@csg/eslint-config": "workspace:*",
-    "@csg/typescript-config": "workspace:*",
+    "@openbook/eslint-config": "workspace:*",
+    "@openbook/typescript-config": "workspace:*",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
     "@types/node": "^26.1.1",

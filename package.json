@@ -1,5 +1,5 @@
 {
-  "name": "monorepo-template",
+  "name": "openbook",
   "version": "1.0.0",
   "scripts": {
     "build": "turbo run build",

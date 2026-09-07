@@ -1,6 +1,6 @@
 {
   "files": [],
-  "extends": "@csg/typescript-config/tsconfig.base.json",
+  "extends": "@openbook/typescript-config/tsconfig.base.json",
   "references": [
     { "path": "./tsconfig.app.json" },
     { "path": "./tsconfig.node.json" }

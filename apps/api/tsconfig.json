@@ -1,5 +1,5 @@
 {
-  "extends": "@csg/typescript-config/tsconfig.express.json",
+  "extends": "@openbook/typescript-config/tsconfig.express.json",
   "compilerOptions": {
     "rootDir": "src",
     "outDir": "dist"

@@ -232,10 +232,10 @@ importers:
         specifier: ^5.2.1
         version: 5.2.1
     devDependencies:
-      '@csg/eslint-config':
+      '@openbook/eslint-config':
         specifier: workspace:*
         version: link:../../packages/eslint-config
-      '@csg/typescript-config':
+      '@openbook/typescript-config':
         specifier: workspace:*
         version: link:../../packages/typescript-config
       '@types/cors':
@@ -266,10 +266,10 @@ importers:
         specifier: ^4.3.3
         version: 4.3.3
     devDependencies:
-      '@csg/eslint-config':
+      '@openbook/eslint-config':
         specifier: workspace:*
         version: link:../../packages/eslint-config
-      '@csg/typescript-config':
+      '@openbook/typescript-config':
         specifier: workspace:*
         version: link:../../packages/typescript-config
       '@types/node':
