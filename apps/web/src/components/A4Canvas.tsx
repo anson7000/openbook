@@ -7,7 +7,7 @@ interface A4CanvasProps {
 }
 
 export default function A4Canvas({ initialBlocks }: A4CanvasProps) {
-  const { mode } = useEditorStore();
+  const { mode, setMode } = useEditorStore();
   const [blocks, setBlocks] = useState<Block[]>(initialBlocks);
   const [editingBlockId, setEditingBlockId] = useState<string | null>(null);
   const [editText, setEditText] = useState<string>("");
@@ -44,6 +44,7 @@ export default function A4Canvas({ initialBlocks }: A4CanvasProps) {
   };
 
   const handleInputBlur = (blockId: string) => {
+    setMode("select");
     setBlocks((prevBlocks) =>
       prevBlocks.map((b) =>
         b.id === blockId ? { ...b, content: editText } : b,

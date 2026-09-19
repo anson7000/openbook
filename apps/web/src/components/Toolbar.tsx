@@ -1,7 +1,8 @@
 import { cn } from "../lib/utils";
 import { useEditorStore } from "../store/useEditorStore";
+import type { EditorMode, Tool } from "../types";
 
-const tools = [
+const tools: Tool[] = [
   { label: "Select", mode: "select" },
   { label: "Text", mode: "text" },
   { label: "Image", mode: "image" },
@@ -11,8 +12,8 @@ const tools = [
 export default function Toolbar() {
   const { mode, setMode } = useEditorStore();
 
-  const handleToolClick = (mode: string) => {
-    setMode(mode as "select" | "text" | "image" | "formula");
+  const handleToolClick = (mode: EditorMode) => {
+    setMode(mode);
   };
 
   return (

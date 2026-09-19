@@ -11,3 +11,8 @@ export interface Block {
 }
 
 export type EditorMode = "select" | "text" | "image" | "formula";
+
+export interface Tool {
+  label: string;
+  mode: EditorMode;
+}
