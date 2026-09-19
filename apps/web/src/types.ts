@@ -1,4 +1,4 @@
-export type BlockType = "text";
+export type BlockType = "text" | "image" | "formula";
 
 export interface Block {
   id: string;
@@ -9,3 +9,5 @@ export interface Block {
   height: number;
   content: string;
 }
+
+export type EditorMode = "select" | "text" | "image" | "formula";

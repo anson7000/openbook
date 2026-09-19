@@ -1,16 +1,20 @@
 import { useState } from "react";
 import type { Block } from "../types";
+import { useEditorStore } from "../store/useEditorStore";
 
 interface A4CanvasProps {
   initialBlocks: Block[];
 }
 
 export default function A4Canvas({ initialBlocks }: A4CanvasProps) {
+  const { mode } = useEditorStore();
   const [blocks, setBlocks] = useState<Block[]>(initialBlocks);
   const [editingBlockId, setEditingBlockId] = useState<string | null>(null);
   const [editText, setEditText] = useState<string>("");
 
   const handleCanvasClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (mode !== "text") return;
+
     const rect = e.currentTarget.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;

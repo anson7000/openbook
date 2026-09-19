@@ -1,13 +1,18 @@
 import { cn } from "../lib/utils";
-import { useState } from "react";
+import { useEditorStore } from "../store/useEditorStore";
 
-const tools = [{ label: "Text" }, { label: "Image" }, { label: "Formula" }];
+const tools = [
+  { label: "Select", mode: "select" },
+  { label: "Text", mode: "text" },
+  { label: "Image", mode: "image" },
+  { label: "Formula", mode: "formula" },
+];
 
 export default function Toolbar() {
-  const [activeTool, setActiveTool] = useState<string>("Text");
+  const { mode, setMode } = useEditorStore();
 
-  const handleToolClick = (toolLabel: string) => {
-    setActiveTool(toolLabel);
+  const handleToolClick = (mode: string) => {
+    setMode(mode as "select" | "text" | "image" | "formula");
   };
 
   return (
@@ -20,12 +25,12 @@ export default function Toolbar() {
           <button
             key={tool.label}
             type="button"
-            onClick={() => handleToolClick(tool.label)}
+            onClick={() => handleToolClick(tool.mode)}
             className={cn(
               "rounded p-4 text-sm font-medium text-foreground transition-colors hover:bg-muted",
-              activeTool === tool.label ? "bg-muted" : "bg-background",
+              mode === tool.mode ? "bg-muted" : "bg-background",
             )}
-            aria-pressed={activeTool === tool.label}
+            aria-pressed={mode === tool.mode}
           >
             {tool.label}
           </button>
