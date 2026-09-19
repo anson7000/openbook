@@ -22,7 +22,7 @@ function Index() {
 
   return (
     <div className="relative min-h-screen bg-muted p-2">
-      <A4Canvas blocks={blocks} />
+      <A4Canvas initialBlocks={blocks} />
       <Toolbar />
     </div>
   );
