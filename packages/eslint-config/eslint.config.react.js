@@ -9,6 +9,7 @@ export default defineConfig([
   ...baseConfig,
   {
     files: ["**/*.{js,mjs,cjs,ts,mts,cts}"],
+    ignores: ["routeTree.gen.ts"],
     plugins: { js },
     extends: ["js/recommended"],
     languageOptions: { globals: { ...globals.browser } },
