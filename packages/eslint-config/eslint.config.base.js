@@ -1,5 +1,4 @@
 import js from "@eslint/js";
-import tseslint from "typescript-eslint";
 import eslintConfigPrettier from "eslint-config-prettier";
 import turboPlugin from "eslint-plugin-turbo";
 import { defineConfig, globalIgnores } from "eslint/config";
@@ -9,11 +8,6 @@ export default defineConfig([
   globalIgnores(["dist/**"]),
   eslintConfigPrettier,
   {
-    files: ["**/*.{js,mjs,cjs,ts,mts,cts}"],
-    plugins: { js },
-    extends: ["js/recommended"],
-  },
-  {
     plugins: {
       turbo: turboPlugin,
     },
@@ -21,5 +15,4 @@ export default defineConfig([
       "turbo/no-undeclared-env-vars": "warn",
     },
   },
-  tseslint.configs.recommended,
 ]);
