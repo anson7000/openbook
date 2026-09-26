@@ -13,6 +13,11 @@ export default function A4Canvas({ initialBlocks }: A4CanvasProps) {
   const [editText, setEditText] = useState<string>("");
 
   const handleCanvasClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (editingBlockId) {
+      handleInputBlur(editingBlockId);
+      return;
+    }
+
     if (mode !== "text") return;
 
     const rect = e.currentTarget.getBoundingClientRect();
@@ -39,10 +44,6 @@ export default function A4Canvas({ initialBlocks }: A4CanvasProps) {
     setEditText(block.content);
   };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setEditText(e.target.value);
-  };
-
   const handleInputBlur = (blockId: string) => {
     setMode("select");
     setBlocks((prevBlocks) =>
@@ -55,46 +56,45 @@ export default function A4Canvas({ initialBlocks }: A4CanvasProps) {
 
   return (
     <div
-      className="relative mx-auto border bg-background shadow-lg overflow-hidden"
-      style={{
-        width: "794px",
-        height: "1123px",
-      }}
+      className="relative mx-auto border bg-background shadow-lg overflow-hidden w-[794px] h-[1123px]"
       onClick={handleCanvasClick}
     >
       {blocks.map((block) => (
         <div
           key={block.id}
-          className="absolute"
+          className="absolute [overflow-wrap:anywhere]"
           style={{
             left: block.x,
             top: block.y,
             width: block.width,
             height: block.height,
-            cursor: "pointer",
-            padding: "4px",
-            boxSizing: "border-box",
-            border: "1px solid transparent",
           }}
           onClick={(e) => {
-            e.stopPropagation(); // prevent canvas click
+            e.stopPropagation();
             handleBlockClick(block);
           }}
         >
           {editingBlockId === block.id ? (
-            <input
+            <div
+              className="w-full h-full outline-2 outline-blue-500"
+              contentEditable
+              suppressContentEditableWarning
               autoFocus
-              value={editText}
-              onChange={handleInputChange}
+              onInput={(e) => {
+                setEditText(e.currentTarget.textContent ?? "");
+              }}
               onBlur={() => handleInputBlur(block.id)}
               onKeyDown={(e) => {
-                if (e.key === "Enter") {
+                if (e.key === "Enter" && !e.shiftKey) {
+                  e.preventDefault();
                   handleInputBlur(block.id);
                 }
               }}
-            />
+            >
+              {block.content}
+            </div>
           ) : (
-            <div>{block.content}</div>
+            <div className="">{block.content}</div>
           )}
         </div>
       ))}
