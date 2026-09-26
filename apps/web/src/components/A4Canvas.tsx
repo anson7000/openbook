@@ -1,6 +1,7 @@
 import { useState } from "react";
 import type { Block } from "../types";
 import { useEditorStore } from "../store/useEditorStore";
+import BlockComponent from "./Block";
 
 interface A4CanvasProps {
   initialBlocks: Block[];
@@ -60,43 +61,15 @@ export default function A4Canvas({ initialBlocks }: A4CanvasProps) {
       onClick={handleCanvasClick}
     >
       {blocks.map((block) => (
-        <div
+        <BlockComponent
           key={block.id}
-          className="absolute [overflow-wrap:anywhere]"
-          style={{
-            left: block.x,
-            top: block.y,
-            width: block.width,
-            height: block.height,
-          }}
-          onClick={(e) => {
-            e.stopPropagation();
-            handleBlockClick(block);
-          }}
-        >
-          {editingBlockId === block.id ? (
-            <div
-              className="w-full h-full outline-2 outline-blue-500"
-              contentEditable
-              suppressContentEditableWarning
-              autoFocus
-              onInput={(e) => {
-                setEditText(e.currentTarget.textContent ?? "");
-              }}
-              onBlur={() => handleInputBlur(block.id)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && !e.shiftKey) {
-                  e.preventDefault();
-                  handleInputBlur(block.id);
-                }
-              }}
-            >
-              {block.content}
-            </div>
-          ) : (
-            <div className="">{block.content}</div>
-          )}
-        </div>
+          block={block}
+          isEditing={editingBlockId === block.id}
+          editText={editText}
+          onSelect={handleBlockClick}
+          onEditText={setEditText}
+          onFinishEditing={() => handleInputBlur(block.id)}
+        />
       ))}
     </div>
   );
