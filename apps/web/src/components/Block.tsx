@@ -1,3 +1,4 @@
+import { useRef } from "react";
 import type { KeyboardEvent, MouseEvent, PointerEvent } from "react";
 import type { Block as BlockData, ResizeDirection } from "../types";
 
@@ -15,6 +16,9 @@ interface BlockProps {
   ) => void;
   onResizeMove: (clientX: number, clientY: number) => void;
   onResizeEnd: () => void;
+  onDragStart: (clientX: number, clientY: number) => void;
+  onDragMove: (clientX: number, clientY: number) => void;
+  onDragEnd: () => void;
 }
 
 export default function Block({
@@ -27,7 +31,12 @@ export default function Block({
   onResizeStart,
   onResizeMove,
   onResizeEnd,
+  onDragStart,
+  onDragMove,
+  onDragEnd,
 }: BlockProps) {
+  const lastPointerDownAt = useRef(0);
+
   const handleClick = (event: MouseEvent<HTMLDivElement>) => {
     event.stopPropagation();
     onSelect(block);
@@ -65,6 +74,34 @@ export default function Block({
     }
   };
 
+  const handleDragStart = (event: PointerEvent<HTMLDivElement>) => {
+    const now = performance.now();
+    const isDoublePress = now - lastPointerDownAt.current <= 300;
+    lastPointerDownAt.current = now;
+
+    if (!isDoublePress) return;
+
+    event.stopPropagation();
+    event.preventDefault();
+    event.currentTarget.setPointerCapture(event.pointerId);
+    onDragStart(event.clientX, event.clientY);
+  };
+
+  const handleDragMove = (event: PointerEvent<HTMLDivElement>) => {
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+      event.stopPropagation();
+      onDragMove(event.clientX, event.clientY);
+    }
+  };
+
+  const handleDragEnd = (event: PointerEvent<HTMLDivElement>) => {
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+      event.stopPropagation();
+      event.currentTarget.releasePointerCapture(event.pointerId);
+      onDragEnd();
+    }
+  };
+
   const resizeHandles: Array<{
     direction: ResizeDirection;
     className: string;
@@ -94,6 +131,10 @@ export default function Block({
         height: block.height,
       }}
       onClick={handleClick}
+      onPointerDown={handleDragStart}
+      onPointerMove={handleDragMove}
+      onPointerUp={handleDragEnd}
+      onPointerCancel={handleDragEnd}
     >
       {isEditing ? (
         <>

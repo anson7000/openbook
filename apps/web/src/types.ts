@@ -21,6 +21,13 @@ export interface ResizeSession {
   block: Block;
 }
 
+export interface DragSession {
+  blockId: string;
+  startX: number;
+  startY: number;
+  block: Block;
+}
+
 export type EditorMode = "select" | "text" | "image" | "formula";
 
 export interface Tool {

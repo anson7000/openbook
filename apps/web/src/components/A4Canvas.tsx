@@ -1,5 +1,10 @@
 import { useRef, useState } from "react";
-import type { Block, ResizeDirection, ResizeSession } from "../types";
+import type {
+  Block,
+  DragSession,
+  ResizeDirection,
+  ResizeSession,
+} from "../types";
 import { useEditorStore } from "../store/useEditorStore";
 import BlockComponent from "./Block";
 
@@ -17,6 +22,7 @@ export default function A4Canvas({ initialBlocks }: A4CanvasProps) {
   const [editingBlockId, setEditingBlockId] = useState<string | null>(null);
   const [editText, setEditText] = useState<string>("");
   const resizeSession = useRef<ResizeSession | null>(null);
+  const dragSession = useRef<DragSession | null>(null);
 
   const handleCanvasClick = (e: React.MouseEvent<HTMLDivElement>) => {
     if (editingBlockId) {
@@ -108,6 +114,41 @@ export default function A4Canvas({ initialBlocks }: A4CanvasProps) {
     resizeSession.current = null;
   };
 
+  const handleDragStart = (block: Block, clientX: number, clientY: number) => {
+    dragSession.current = {
+      blockId: block.id,
+      startX: clientX,
+      startY: clientY,
+      block,
+    };
+  };
+
+  const handleDragMove = (clientX: number, clientY: number) => {
+    const session = dragSession.current;
+    if (!session) return;
+
+    const deltaX = clientX - session.startX;
+    const deltaY = clientY - session.startY;
+    const x = Math.max(
+      0,
+      Math.min(session.block.x + deltaX, CANVAS_WIDTH - session.block.width),
+    );
+    const y = Math.max(
+      0,
+      Math.min(session.block.y + deltaY, CANVAS_HEIGHT - session.block.height),
+    );
+
+    setBlocks((previousBlocks) =>
+      previousBlocks.map((block) =>
+        block.id === session.blockId ? { ...block, x, y } : block,
+      ),
+    );
+  };
+
+  const handleDragEnd = () => {
+    dragSession.current = null;
+  };
+
   const handleBlockClick = (block: Block) => {
     setEditingBlockId(block.id);
     setEditText(block.content);
@@ -142,6 +183,11 @@ export default function A4Canvas({ initialBlocks }: A4CanvasProps) {
           }
           onResizeMove={handleResizeMove}
           onResizeEnd={handleResizeEnd}
+          onDragStart={(clientX, clientY) =>
+            handleDragStart(block, clientX, clientY)
+          }
+          onDragMove={handleDragMove}
+          onDragEnd={handleDragEnd}
         />
       ))}
     </div>
