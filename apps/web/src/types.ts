@@ -1,3 +1,5 @@
+import type { ComponentType, SVGProps } from "react";
+
 export type BlockType = "text" | "image" | "formula";
 
 export type ResizeDirection =
@@ -31,6 +33,8 @@ export interface DragSession {
 export type EditorMode = "select" | "text" | "image" | "formula";
 
 export interface Tool {
+  /** Accessible name for the tool. Shown to screen readers only. */
   label: string;
   mode: EditorMode;
+  icon: ComponentType<SVGProps<SVGSVGElement>>;
 }
