@@ -143,9 +143,6 @@ export default function Block({
             contentEditable
             suppressContentEditableWarning
             autoFocus
-            onInput={(event) => {
-              onEditText(event.currentTarget.textContent ?? "");
-            }}
             onBlur={onFinishEditing}
             onKeyDown={handleKeyDown}
           >
