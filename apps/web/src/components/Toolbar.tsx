@@ -1,12 +1,16 @@
+import formulaIcon from "../assets/formula_googleicons.svg?react";
+import imageIcon from "../assets/image_googleicons.svg?react";
+import selectIcon from "../assets/select_googleicons.svg?react";
+import textIcon from "../assets/text_googleicons.svg?react";
 import { cn } from "../lib/utils";
 import { useEditorStore } from "../store/useEditorStore";
 import type { EditorMode, Tool } from "../types";
 
 const tools: Tool[] = [
-  { label: "Select", mode: "select" },
-  { label: "Text", mode: "text" },
-  { label: "Image", mode: "image" },
-  { label: "Formula", mode: "formula" },
+  { label: "Select", mode: "select", icon: selectIcon },
+  { label: "Text", mode: "text", icon: textIcon },
+  { label: "Image", mode: "image", icon: imageIcon },
+  { label: "Formula", mode: "formula", icon: formulaIcon },
 ];
 
 export default function Toolbar() {
@@ -22,18 +26,21 @@ export default function Toolbar() {
       className="sticky bottom-4 flex justify-center"
     >
       <div className="flex border rounded bg-background shadow">
-        {tools.map((tool) => (
+        {tools.map(({ label, mode: toolMode, icon: Icon }) => (
           <button
-            key={tool.label}
+            key={label}
             type="button"
-            onClick={() => handleToolClick(tool.mode)}
+            onClick={() => handleToolClick(toolMode)}
             className={cn(
-              "rounded p-4 text-sm font-medium text-foreground transition-colors hover:bg-muted",
-              mode === tool.mode ? "bg-muted" : "bg-background",
+              "flex items-center justify-center rounded p-4 transition-colors",
+              mode === toolMode
+                ? "bg-selected text-selected-foreground"
+                : "bg-background text-foreground hover:bg-muted",
             )}
-            aria-pressed={mode === tool.mode}
+            aria-pressed={mode === toolMode}
           >
-            {tool.label}
+            <Icon aria-hidden="true" focusable="false" className="size-6" />
+            <span className="sr-only">{label}</span>
           </button>
         ))}
       </div>
