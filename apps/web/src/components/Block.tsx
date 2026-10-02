@@ -1,164 +1,82 @@
-import { useRef } from "react";
-import type { KeyboardEvent, MouseEvent, PointerEvent } from "react";
-import type { Block as BlockData, ResizeDirection } from "../types";
+import type { Block as BlockData } from "../types";
+import { useDrag } from "@use-gesture/react";
+import { cn } from "../lib/utils";
+import { useEditorStore } from "../store/useEditorStore";
 
 interface BlockProps {
   block: BlockData;
-  isEditing: boolean;
-  editText: string;
-  onSelect: (block: BlockData) => void;
-  onEditText: (text: string) => void;
-  onFinishEditing: () => void;
-  onResizeStart: (
-    direction: ResizeDirection,
-    clientX: number,
-    clientY: number,
-  ) => void;
-  onResizeMove: (clientX: number, clientY: number) => void;
-  onResizeEnd: () => void;
-  onDragStart: (clientX: number, clientY: number) => void;
-  onDragMove: (clientX: number, clientY: number) => void;
-  onDragEnd: () => void;
+  isSelected: boolean;
+  onPointerDown: (blockId: string) => void;
+  onDrag: (x: number, y: number) => void;
+  onResize: (width: number, height: number) => void;
 }
 
 export default function Block({
   block,
-  isEditing,
-  editText,
-  onSelect,
-  onEditText,
-  onFinishEditing,
-  onResizeStart,
-  onResizeMove,
-  onResizeEnd,
-  onDragStart,
-  onDragMove,
-  onDragEnd,
+  isSelected,
+  onPointerDown,
+  onDrag,
+  onResize,
 }: BlockProps) {
-  const lastPointerDownAt = useRef(0);
+  const { canvasWidth, canvasHeight } = useEditorStore();
 
-  const handleClick = (event: MouseEvent<HTMLDivElement>) => {
-    event.stopPropagation();
-    onSelect(block);
-  };
-
-  const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
-    if (event.key === "Enter" && !event.shiftKey) {
-      event.preventDefault();
-      onFinishEditing();
+  const dragBind = useDrag(({ first, down, delta: [deltaX, deltaY] }) => {
+    if (first) {
+      onPointerDown(block.id);
     }
-  };
 
-  const handleResizeStart = (
-    event: PointerEvent<HTMLDivElement>,
-    direction: ResizeDirection,
-  ) => {
-    event.stopPropagation();
-    event.preventDefault();
-    event.currentTarget.setPointerCapture(event.pointerId);
-    onResizeStart(direction, event.clientX, event.clientY);
-  };
+    if (down) {
+      const x = Math.max(
+        0,
+        Math.min(block.x + deltaX, canvasWidth - block.width),
+      );
+      const y = Math.max(
+        0,
+        Math.min(block.y + deltaY, canvasHeight - block.height),
+      );
 
-  const handleResizeMove = (event: PointerEvent<HTMLDivElement>) => {
-    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+      onDrag(x, y);
+    }
+  });
+
+  const resizeHandleDragBind = useDrag(
+    ({ event, down, delta: [deltaX, deltaY] }) => {
       event.stopPropagation();
-      onResizeMove(event.clientX, event.clientY);
-    }
-  };
 
-  const handleResizeEnd = (event: PointerEvent<HTMLDivElement>) => {
-    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
-      event.stopPropagation();
-      event.currentTarget.releasePointerCapture(event.pointerId);
-      onResizeEnd();
-    }
-  };
+      if (down) {
+        const maxWidth = canvasWidth - block.x;
+        const maxHeight = canvasHeight - block.y;
 
-  const handleDragStart = (event: PointerEvent<HTMLDivElement>) => {
-    const now = performance.now();
-    const isDoublePress = now - lastPointerDownAt.current <= 300;
-    lastPointerDownAt.current = now;
+        const width = Math.max(0, Math.min(block.width + deltaX, maxWidth));
+        const height = Math.max(0, Math.min(block.height + deltaY, maxHeight));
 
-    if (!isDoublePress) return;
-
-    event.stopPropagation();
-    event.preventDefault();
-    event.currentTarget.setPointerCapture(event.pointerId);
-    onDragStart(event.clientX, event.clientY);
-  };
-
-  const handleDragMove = (event: PointerEvent<HTMLDivElement>) => {
-    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
-      event.stopPropagation();
-      onDragMove(event.clientX, event.clientY);
-    }
-  };
-
-  const handleDragEnd = (event: PointerEvent<HTMLDivElement>) => {
-    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
-      event.stopPropagation();
-      event.currentTarget.releasePointerCapture(event.pointerId);
-      onDragEnd();
-    }
-  };
-
-  const resizeHandles: Array<{
-    direction: ResizeDirection;
-    className: string;
-  }> = [
-    { direction: "top-left", className: "-left-1 -top-1 cursor-nwse-resize" },
-    {
-      direction: "top-right",
-      className: "-right-1 -top-1 cursor-nesw-resize",
+        onResize(width, height);
+      }
     },
-    {
-      direction: "bottom-left",
-      className: "-bottom-1 -left-1 cursor-nesw-resize",
-    },
-    {
-      direction: "bottom-right",
-      className: "-bottom-1 -right-1 cursor-nwse-resize",
-    },
-  ];
+  );
 
   return (
     <div
-      className="absolute [overflow-wrap:anywhere]"
+      {...dragBind()}
+      className={cn(
+        "absolute [overflow-wrap:anywhere] touch-none",
+        isSelected ? "outline-2 outline-blue-500" : "",
+      )}
       style={{
         left: block.x,
         top: block.y,
         width: block.width,
         height: block.height,
       }}
-      onClick={handleClick}
-      onPointerDown={handleDragStart}
-      onPointerMove={handleDragMove}
-      onPointerUp={handleDragEnd}
-      onPointerCancel={handleDragEnd}
+      onClick={(e) => e.stopPropagation()}
     >
-      {isEditing ? (
+      {isSelected ? (
         <>
           <div
-            className="w-full h-full outline-2 outline-blue-500"
-            contentEditable
-            suppressContentEditableWarning
-            autoFocus
-            onBlur={onFinishEditing}
-            onKeyDown={handleKeyDown}
-          >
-            {editText}
-          </div>
-          {resizeHandles.map(({ direction, className }) => (
-            <div
-              key={direction}
-              className={`absolute z-10 h-3 w-3 touch-none rounded-full bg-blue-500 ${className}`}
-              onPointerDown={(event) => handleResizeStart(event, direction)}
-              onPointerMove={handleResizeMove}
-              onPointerUp={handleResizeEnd}
-              onPointerCancel={handleResizeEnd}
-              onClick={(event) => event.stopPropagation()}
-            />
-          ))}
+            {...resizeHandleDragBind()}
+            className={`absolute z-10 h-3 w-3 touch-none rounded-full bg-blue-500 touch-none -bottom-1 -right-1 cursor-nwse-resize`}
+          />
+          <div>{block.content}</div>
         </>
       ) : (
         <div>{block.content}</div>
