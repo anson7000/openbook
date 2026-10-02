@@ -13,9 +13,9 @@ export interface Block {
   content: string;
 }
 
-export interface SelectedBlock {
-  id: string;
-  state: BlockState;
+export interface SelectInfo {
+  blockId: string;
+  blockState: BlockState;
 }
 
 export type EditorMode = "select" | "text" | "image" | "formula";

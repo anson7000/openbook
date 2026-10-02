@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type { Block, SelectedBlock } from "../types";
+import type { Block, SelectInfo } from "../types";
 import { useEditorStore } from "../store/useEditorStore";
 import BlockComponent from "./Block";
 
@@ -10,35 +10,33 @@ interface A4CanvasProps {
 export default function A4Canvas({ initialBlocks }: A4CanvasProps) {
   const { canvasWidth, canvasHeight, setMode } = useEditorStore();
   const [blocks, setBlocks] = useState<Block[]>(initialBlocks);
-  const [selectedBlock, setSelectedBlock] = useState<SelectedBlock | null>(
-    null,
-  );
+  const [selectInfo, setSelectInfo] = useState<SelectInfo | null>(null);
 
   const handleClick = () => {
-    setSelectedBlock(null);
+    setSelectInfo(null);
     setMode("select");
   };
 
   const handleBlockOnPointerDown = (blockId: string) => {
-    setSelectedBlock({ id: blockId, state: "select" });
+    setSelectInfo({ blockId, blockState: "select" });
   };
 
   const handleBlockDrag = (x: number, y: number) => {
-    if (!selectedBlock) return;
+    if (!selectInfo) return;
 
     setBlocks((previousBlocks) =>
       previousBlocks.map((block) =>
-        block.id === selectedBlock.id ? { ...block, x, y } : block,
+        block.id === selectInfo.blockId ? { ...block, x, y } : block,
       ),
     );
   };
 
   const handleBlockResize = (width: number, height: number) => {
-    if (!selectedBlock) return;
+    if (!selectInfo) return;
 
     setBlocks((previousBlocks) =>
       previousBlocks.map((block) =>
-        block.id === selectedBlock.id ? { ...block, width, height } : block,
+        block.id === selectInfo.blockId ? { ...block, width, height } : block,
       ),
     );
   };
@@ -58,7 +56,7 @@ export default function A4Canvas({ initialBlocks }: A4CanvasProps) {
         <BlockComponent
           key={block.id}
           block={block}
-          isSelected={selectedBlock ? block.id == selectedBlock.id : false}
+          isSelected={selectInfo ? block.id == selectInfo.blockId : false}
           onPointerDown={handleBlockOnPointerDown}
           onDrag={handleBlockDrag}
           onResize={handleBlockResize}
