@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import A4Canvas from "../components/A4Canvas";
+import Page from "../components/Page";
 import Toolbar from "../components/Toolbar";
 import type { Block } from "../types";
 
@@ -12,8 +12,8 @@ function Index() {
     {
       id: "welcome",
       type: "text",
-      x: 48,
-      y: 48,
+      x: 0,
+      y: 0,
       width: 698,
       height: 48,
       content: "Hello, this is an A4 canvas. You can add your content here.",
@@ -22,7 +22,7 @@ function Index() {
 
   return (
     <div className="relative min-h-screen bg-muted p-2">
-      <A4Canvas initialBlocks={blocks} />
+      <Page initialBlocks={blocks} />
       <Toolbar />
     </div>
   );

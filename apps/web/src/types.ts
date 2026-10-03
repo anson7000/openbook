@@ -1,9 +1,7 @@
 import type { ComponentType, SVGProps } from "react";
 
 export type BlockType = "text" | "image" | "formula";
-
-export type ResizeDirection =
-  "top-left" | "top-right" | "bottom-left" | "bottom-right";
+export type BlockState = "select" | "edit" | "drag" | "resize";
 
 export interface Block {
   id: string;
@@ -15,19 +13,9 @@ export interface Block {
   content: string;
 }
 
-export interface ResizeSession {
+export interface SelectInfo {
   blockId: string;
-  direction: ResizeDirection;
-  startX: number;
-  startY: number;
-  block: Block;
-}
-
-export interface DragSession {
-  blockId: string;
-  startX: number;
-  startY: number;
-  block: Block;
+  blockState: BlockState;
 }
 
 export type EditorMode = "select" | "text" | "image" | "formula";
