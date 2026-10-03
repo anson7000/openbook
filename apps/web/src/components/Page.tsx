@@ -57,7 +57,7 @@ export default function Page({ initialBlocks }: PageProps) {
     );
   };
 
-  const handleBlockResize = (width: number, height: number) => {
+  const handleResizeHandleDrag = (width: number, height: number) => {
     if (!setSelectedBlockId) return;
 
     setBlocks((previousBlocks) =>
@@ -92,9 +92,10 @@ export default function Page({ initialBlocks }: PageProps) {
           key={block.id}
           block={block}
           isSelected={selectedBlockId ? block.id == selectedBlockId : false}
+          bounds={ref}
           onPointerDown={handleBlockOnPointerDown}
           onDrag={handleBlockDrag}
-          onResize={handleBlockResize}
+          onResizeHandleDrag={handleResizeHandleDrag}
           onContentBlur={handleContentBlur}
         />
       ))}
