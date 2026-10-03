@@ -2,6 +2,8 @@ import type { Block as BlockData } from "../types";
 import { useDrag } from "@use-gesture/react";
 import { cn } from "../lib/utils";
 import { useEditorStore } from "../store/useEditorStore";
+import { useState } from "react";
+import Content from "./Content";
 
 interface BlockProps {
   block: BlockData;
@@ -19,6 +21,7 @@ export default function Block({
   onResize,
 }: BlockProps) {
   const { pageWidth, pageHeight } = useEditorStore();
+  const [editText, setEditText] = useState<string | null>(null);
 
   const dragBind = useDrag(
     ({ first, event, down, delta: [deltaX, deltaY] }) => {
@@ -93,10 +96,10 @@ export default function Block({
             {...resizeHandleDragBind()}
             className={`absolute z-10 h-3 w-3 touch-none rounded-full bg-blue-500 touch-none -bottom-1 -right-1 cursor-nwse-resize`}
           />
-          <div>{block.content}</div>
+          <Content content={block.content} />
         </>
       ) : (
-        <div>{block.content}</div>
+        <Content content={block.content} />
       )}
     </div>
   );

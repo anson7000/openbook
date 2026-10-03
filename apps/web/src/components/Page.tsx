@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import type { Block, SelectInfo } from "../types";
+import type { Block } from "../types";
 import { useEditorStore } from "../store/useEditorStore";
 import BlockComponent from "./Block";
 import { useDrag } from "@use-gesture/react";
@@ -12,7 +12,7 @@ export default function Page({ initialBlocks }: PageProps) {
   const pageRef = useRef<HTMLDivElement>(null);
   const { pageWidth, pageHeight, mode, setMode } = useEditorStore();
   const [blocks, setBlocks] = useState<Block[]>(initialBlocks);
-  const [selectInfo, setSelectInfo] = useState<SelectInfo | null>(null);
+  const [selectedBlockId, setSelectedBlockId] = useState<string | null>(null);
 
   const dragBind = useDrag(({ initial: [initialX, initialY], tap }) => {
     if (tap) {
@@ -37,31 +37,31 @@ export default function Page({ initialBlocks }: PageProps) {
         setBlocks([...blocks, newBlock]);
       }
 
-      setSelectInfo(null);
+      setSelectedBlockId(null);
       setMode("select");
     }
   });
 
   const handleBlockOnPointerDown = (blockId: string) => {
-    setSelectInfo({ blockId, blockState: "select" });
+    setSelectedBlockId(blockId);
   };
 
   const handleBlockDrag = (x: number, y: number) => {
-    if (!selectInfo) return;
+    if (!setSelectedBlockId) return;
 
     setBlocks((previousBlocks) =>
       previousBlocks.map((block) =>
-        block.id === selectInfo.blockId ? { ...block, x, y } : block,
+        block.id === selectedBlockId ? { ...block, x, y } : block,
       ),
     );
   };
 
   const handleBlockResize = (width: number, height: number) => {
-    if (!selectInfo) return;
+    if (!setSelectedBlockId) return;
 
     setBlocks((previousBlocks) =>
       previousBlocks.map((block) =>
-        block.id === selectInfo.blockId ? { ...block, width, height } : block,
+        block.id === selectedBlockId ? { ...block, width, height } : block,
       ),
     );
   };
@@ -82,7 +82,7 @@ export default function Page({ initialBlocks }: PageProps) {
         <BlockComponent
           key={block.id}
           block={block}
-          isSelected={selectInfo ? block.id == selectInfo.blockId : false}
+          isSelected={selectedBlockId ? block.id == selectedBlockId : false}
           onPointerDown={handleBlockOnPointerDown}
           onDrag={handleBlockDrag}
           onResize={handleBlockResize}
