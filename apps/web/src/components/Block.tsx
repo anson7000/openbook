@@ -2,8 +2,8 @@ import type { Block as BlockData } from "../types";
 import { useDrag } from "@use-gesture/react";
 import { cn } from "../lib/utils";
 import { useEditorStore } from "../store/useEditorStore";
-import { useState } from "react";
 import Content from "./Content";
+import { useState } from "react";
 
 interface BlockProps {
   block: BlockData;
@@ -11,6 +11,7 @@ interface BlockProps {
   onPointerDown: (blockId: string) => void;
   onDrag: (x: number, y: number) => void;
   onResize: (width: number, height: number) => void;
+  onContentBlur: (blockId: string, content: string) => void;
 }
 
 export default function Block({
@@ -19,14 +20,15 @@ export default function Block({
   onPointerDown,
   onDrag,
   onResize,
+  onContentBlur,
 }: BlockProps) {
   const { pageWidth, pageHeight } = useEditorStore();
-  const [editText, setEditText] = useState<string | null>(null);
 
   const dragBind = useDrag(
     ({ first, event, down, delta: [deltaX, deltaY] }) => {
       if (first) {
         event.stopPropagation();
+
         onPointerDown(block.id);
         return;
       }
@@ -88,19 +90,21 @@ export default function Block({
         width: block.width,
         height: block.height,
       }}
-      onClick={(e) => e.stopPropagation()}
+      onClick={(event) => event.stopPropagation()}
     >
       {isSelected ? (
-        <>
-          <div
-            {...resizeHandleDragBind()}
-            className={`absolute z-10 h-3 w-3 touch-none rounded-full bg-blue-500 touch-none -bottom-1 -right-1 cursor-nwse-resize`}
-          />
-          <Content content={block.content} />
-        </>
+        <div
+          {...resizeHandleDragBind()}
+          className={`absolute z-10 h-3 w-3 touch-none rounded-full bg-blue-500 touch-none -bottom-1 -right-1 cursor-nwse-resize`}
+        />
       ) : (
-        <Content content={block.content} />
+        <></>
       )}
+      <Content
+        content={block.content}
+        isSelected={isSelected}
+        onBlur={(content) => onContentBlur(block.id, content)}
+      />
     </div>
   );
 }

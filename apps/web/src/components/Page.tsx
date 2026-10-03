@@ -9,15 +9,16 @@ interface PageProps {
 }
 
 export default function Page({ initialBlocks }: PageProps) {
-  const pageRef = useRef<HTMLDivElement>(null);
+  const ref = useRef<HTMLDivElement>(null);
   const { pageWidth, pageHeight, mode, setMode } = useEditorStore();
   const [blocks, setBlocks] = useState<Block[]>(initialBlocks);
   const [selectedBlockId, setSelectedBlockId] = useState<string | null>(null);
 
-  const dragBind = useDrag(({ initial: [initialX, initialY], tap }) => {
-    if (tap) {
+  // Dont know why pressing the arrow key is treated as tap
+  const dragBind = useDrag(({ initial: [initialX, initialY], first, down }) => {
+    if (first && down) {
       if (mode === "text") {
-        const page = pageRef.current;
+        const page = ref.current;
         if (!page) return;
 
         const rect = page.getBoundingClientRect();
@@ -66,9 +67,17 @@ export default function Page({ initialBlocks }: PageProps) {
     );
   };
 
+  const handleContentBlur = (blockId: string, content: string) => {
+    setBlocks((previousBlocks) =>
+      previousBlocks.map((block) =>
+        block.id === blockId ? { ...block, content } : block,
+      ),
+    );
+  };
+
   return (
     <div
-      ref={pageRef}
+      ref={ref}
       {...dragBind()}
       className={
         "relative mx-auto border bg-background shadow-lg overflow-hidden touch-none"
@@ -86,6 +95,7 @@ export default function Page({ initialBlocks }: PageProps) {
           onPointerDown={handleBlockOnPointerDown}
           onDrag={handleBlockDrag}
           onResize={handleBlockResize}
+          onContentBlur={handleContentBlur}
         />
       ))}
     </div>
