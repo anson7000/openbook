@@ -1,7 +1,7 @@
 import type { ComponentType, SVGProps } from "react";
 
 export type BlockType = "text" | "image" | "formula";
-export type BlockState = "select" | "edit" | "drag" | "resize";
+export type EditorMode = "select" | "text" | "image" | "formula";
 
 export interface Block {
   id: string;
@@ -12,13 +12,6 @@ export interface Block {
   height: number;
   content: string;
 }
-
-export interface SelectInfo {
-  blockId: string;
-  blockState: BlockState;
-}
-
-export type EditorMode = "select" | "text" | "image" | "formula";
 
 export interface Tool {
   /** Accessible name for the tool. Shown to screen readers only. */
