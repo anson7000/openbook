@@ -12,8 +12,8 @@ function Index() {
     {
       id: "welcome",
       type: "text",
-      x: 48,
-      y: 48,
+      x: 0,
+      y: 0,
       width: 698,
       height: 48,
       content: "Hello, this is an A4 canvas. You can add your content here.",

@@ -20,12 +20,12 @@ export default function Block({
 }: BlockProps) {
   const { canvasWidth, canvasHeight } = useEditorStore();
 
-  const dragBind = useDrag(({ first, down, delta: [deltaX, deltaY] }) => {
+  const dragBind = useDrag(({ first, dragging, delta: [deltaX, deltaY] }) => {
     if (first) {
       onPointerDown(block.id);
     }
 
-    if (down) {
+    if (dragging) {
       const x = Math.max(
         0,
         Math.min(block.x + deltaX, canvasWidth - block.width),
@@ -40,18 +40,32 @@ export default function Block({
   });
 
   const resizeHandleDragBind = useDrag(
-    ({ event, down, delta: [deltaX, deltaY] }) => {
-      event.stopPropagation();
+    ({
+      first,
+      event,
+      dragging,
+      xy: [x, y],
+      initial: [initialX, initialY],
+      memo,
+    }) => {
+      if (first) {
+        event.stopPropagation();
+        memo = [block.width, block.height];
+      }
 
-      if (down) {
+      if (dragging) {
         const maxWidth = canvasWidth - block.x;
         const maxHeight = canvasHeight - block.y;
+        const deltaX = x - initialX;
+        const deltaY = y - initialY;
 
-        const width = Math.max(0, Math.min(block.width + deltaX, maxWidth));
-        const height = Math.max(0, Math.min(block.height + deltaY, maxHeight));
+        const width = Math.max(0, Math.min(memo[0] + deltaX, maxWidth));
+        const height = Math.max(0, Math.min(memo[1] + deltaY, maxHeight));
 
         onResize(width, height);
       }
+
+      return memo;
     },
   );
 
