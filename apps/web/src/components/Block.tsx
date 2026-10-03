@@ -1,28 +1,27 @@
 import type { Block as BlockData } from "../types";
-import { useDrag } from "@use-gesture/react";
+import { useDrag, type DragBounds } from "@use-gesture/react";
 import { cn } from "../lib/utils";
-import { useEditorStore } from "../store/useEditorStore";
 import Content from "./Content";
 
 interface BlockProps {
   block: BlockData;
   isSelected: boolean;
+  bounds: DragBounds;
   onPointerDown: (blockId: string) => void;
   onDrag: (x: number, y: number) => void;
-  onResize: (width: number, height: number) => void;
+  onResizeHandleDrag: (width: number, height: number) => void;
   onContentBlur: (blockId: string, content: string) => void;
 }
 
 export default function Block({
   block,
   isSelected,
+  bounds,
   onPointerDown,
   onDrag,
-  onResize,
+  onResizeHandleDrag,
   onContentBlur,
 }: BlockProps) {
-  const { pageWidth, pageHeight } = useEditorStore();
-
   const dragBind = useDrag(
     ({ first, event, down, delta: [deltaX, deltaY] }) => {
       if (first) {
@@ -33,46 +32,31 @@ export default function Block({
       }
 
       if (down) {
-        const x = Math.max(
-          0,
-          Math.min(block.x + deltaX, pageWidth - block.width),
-        );
-        const y = Math.max(
-          0,
-          Math.min(block.y + deltaY, pageHeight - block.height),
-        );
-
+        const x = Math.max(0, block.x + deltaX);
+        const y = Math.max(0, block.y + deltaY);
         onDrag(x, y);
       }
+    },
+    {
+      bounds: bounds,
     },
   );
 
   const resizeHandleDragBind = useDrag(
-    ({
-      first,
-      event,
-      down,
-      xy: [x, y],
-      initial: [initialX, initialY],
-      memo,
-    }) => {
+    ({ first, event, down, delta: [deltaX, deltaY] }) => {
       if (first) {
         event.stopPropagation();
-        memo = [block.width, block.height];
-        return memo;
+        return;
       }
 
       if (down) {
-        const maxWidth = pageWidth - block.x;
-        const maxHeight = pageHeight - block.y;
-        const deltaX = x - initialX;
-        const deltaY = y - initialY;
-
-        const width = Math.max(0, Math.min(memo[0] + deltaX, maxWidth));
-        const height = Math.max(0, Math.min(memo[1] + deltaY, maxHeight));
-
-        onResize(width, height);
+        const width = Math.max(0, block.width + deltaX);
+        const height = Math.max(0, block.height + deltaY);
+        onResizeHandleDrag(width, height);
       }
+    },
+    {
+      bounds: bounds,
     },
   );
 
