@@ -3,7 +3,6 @@ import { useDrag } from "@use-gesture/react";
 import { cn } from "../lib/utils";
 import { useEditorStore } from "../store/useEditorStore";
 import Content from "./Content";
-import { useState } from "react";
 
 interface BlockProps {
   block: BlockData;
