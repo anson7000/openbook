@@ -48,7 +48,6 @@ export default function Page({ initialBlocks }: PageProps) {
 
   const handleBlockDrag = (x: number, y: number) => {
     if (!selectInfo) return;
-    console.log(selectInfo)
 
     setBlocks((previousBlocks) =>
       previousBlocks.map((block) =>
