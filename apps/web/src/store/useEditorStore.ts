@@ -3,14 +3,14 @@ import type { EditorMode } from "../types";
 
 interface EditorState {
   mode: EditorMode;
-  canvasWidth: number;
-  canvasHeight: number;
+  pageWidth: number;
+  pageHeight: number;
   setMode: (mode: EditorMode) => void;
 }
 
 export const useEditorStore = create<EditorState>((set) => ({
   mode: "select",
-  canvasWidth: 794,
-  canvasHeight: 1123,
+  pageWidth: 794,
+  pageHeight: 1123,
   setMode: (mode) => set({ mode }),
 }));

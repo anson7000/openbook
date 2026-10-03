@@ -18,32 +18,36 @@ export default function Block({
   onDrag,
   onResize,
 }: BlockProps) {
-  const { canvasWidth, canvasHeight } = useEditorStore();
+  const { pageWidth, pageHeight } = useEditorStore();
 
-  const dragBind = useDrag(({ first, dragging, delta: [deltaX, deltaY] }) => {
-    if (first) {
-      onPointerDown(block.id);
-    }
+  const dragBind = useDrag(
+    ({ first, event, down, delta: [deltaX, deltaY] }) => {
+      if (first) {
+        event.stopPropagation();
+        onPointerDown(block.id);
+        return;
+      }
 
-    if (dragging) {
-      const x = Math.max(
-        0,
-        Math.min(block.x + deltaX, canvasWidth - block.width),
-      );
-      const y = Math.max(
-        0,
-        Math.min(block.y + deltaY, canvasHeight - block.height),
-      );
+      if (down) {
+        const x = Math.max(
+          0,
+          Math.min(block.x + deltaX, pageWidth - block.width),
+        );
+        const y = Math.max(
+          0,
+          Math.min(block.y + deltaY, pageHeight - block.height),
+        );
 
-      onDrag(x, y);
-    }
-  });
+        onDrag(x, y);
+      }
+    },
+  );
 
   const resizeHandleDragBind = useDrag(
     ({
       first,
       event,
-      dragging,
+      down,
       xy: [x, y],
       initial: [initialX, initialY],
       memo,
@@ -51,11 +55,12 @@ export default function Block({
       if (first) {
         event.stopPropagation();
         memo = [block.width, block.height];
+        return memo;
       }
 
-      if (dragging) {
-        const maxWidth = canvasWidth - block.x;
-        const maxHeight = canvasHeight - block.y;
+      if (down) {
+        const maxWidth = pageWidth - block.x;
+        const maxHeight = pageHeight - block.y;
         const deltaX = x - initialX;
         const deltaY = y - initialY;
 
@@ -64,8 +69,6 @@ export default function Block({
 
         onResize(width, height);
       }
-
-      return memo;
     },
   );
 

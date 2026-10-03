@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import A4Canvas from "../components/A4Canvas";
+import Page from "../components/Page";
 import Toolbar from "../components/Toolbar";
 import type { Block } from "../types";
 
@@ -22,7 +22,7 @@ function Index() {
 
   return (
     <div className="relative min-h-screen bg-muted p-2">
-      <A4Canvas initialBlocks={blocks} />
+      <Page initialBlocks={blocks} />
       <Toolbar />
     </div>
   );
