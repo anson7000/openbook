@@ -65,7 +65,7 @@ export default function Block({
       {...dragBind()}
       className={cn(
         "absolute [overflow-wrap:anywhere] touch-none",
-        isSelected ? "outline-2 outline-blue-500" : "",
+        isSelected ? "outline-2 outline-blue-500 print:outline-none" : "",
       )}
       style={{
         left: block.x,
@@ -78,7 +78,7 @@ export default function Block({
       {isSelected ? (
         <div
           {...resizeHandleDragBind()}
-          className={`absolute z-10 h-3 w-3 touch-none rounded-full bg-blue-500 touch-none -bottom-1 -right-1 cursor-nwse-resize`}
+          className={`absolute z-10 h-3 w-3 touch-none rounded-full bg-blue-500 touch-none -bottom-1 -right-1 cursor-nwse-resize print:hidden`}
         />
       ) : (
         <></>

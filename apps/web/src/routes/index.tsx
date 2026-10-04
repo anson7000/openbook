@@ -21,7 +21,7 @@ function Index() {
   ];
 
   return (
-    <div className="relative min-h-screen bg-muted p-2">
+    <div className="relative min-h-screen bg-muted p-2 print:min-h-0 print:bg-transparent print:p-0">
       <Page initialBlocks={blocks} />
       <Toolbar />
     </div>

@@ -80,7 +80,7 @@ export default function Page({ initialBlocks }: PageProps) {
       ref={ref}
       {...dragBind()}
       className={
-        "relative mx-auto border bg-background shadow-lg overflow-hidden touch-none"
+        "relative mx-auto border bg-background shadow-lg overflow-hidden touch-none print:mx-0 print:border-0 print:shadow-none"
       }
       style={{
         width: pageWidth,
