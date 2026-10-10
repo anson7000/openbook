@@ -2,39 +2,42 @@ import type { Block as BlockData } from "../types";
 import { useDrag, type DragBounds } from "@use-gesture/react";
 import { cn } from "../lib/utils";
 import Content from "./Content";
+import { useEditorStore } from "../store/useEditorStore";
 
 interface BlockProps {
   block: BlockData;
-  isSelected: boolean;
   bounds: DragBounds;
-  onPointerDown: (blockId: string) => void;
-  onDrag: (x: number, y: number) => void;
-  onResizeHandleDrag: (width: number, height: number) => void;
-  onContentBlur: (blockId: string, content: string) => void;
 }
 
-export default function Block({
-  block,
-  isSelected,
-  bounds,
-  onPointerDown,
-  onDrag,
-  onResizeHandleDrag,
-  onContentBlur,
-}: BlockProps) {
+export default function Block({ block, bounds }: BlockProps) {
+  const {
+    selectedPageId,
+    selectedBlockId,
+    setSelectedBlockId,
+    setPageBlockPosition,
+    setPageBlockSize,
+  } = useEditorStore();
+  const isSelected = selectedBlockId === block.id;
+
   const dragBind = useDrag(
-    ({ first, event, down, delta: [deltaX, deltaY] }) => {
+    ({ first, event, tap, down, delta: [deltaX, deltaY] }) => {
       if (first) {
         event.stopPropagation();
+      }
 
-        onPointerDown(block.id);
+      if (tap) {
+        if (!isSelected) {
+          console.log("tap");
+          setSelectedBlockId(block.id);
+        }
         return;
       }
 
       if (down) {
         const x = Math.max(0, block.x + deltaX);
         const y = Math.max(0, block.y + deltaY);
-        onDrag(x, y);
+
+        setPageBlockPosition(selectedPageId, block.id, x, y);
       }
     },
     {
@@ -52,7 +55,7 @@ export default function Block({
       if (down) {
         const width = Math.max(0, block.width + deltaX);
         const height = Math.max(0, block.height + deltaY);
-        onResizeHandleDrag(width, height);
+        setPageBlockSize(selectedPageId, block.id, width, height);
       }
     },
     {
@@ -73,7 +76,6 @@ export default function Block({
         width: block.width,
         height: block.height,
       }}
-      onClick={(event) => event.stopPropagation()}
     >
       {isSelected ? (
         <div
@@ -83,11 +85,7 @@ export default function Block({
       ) : (
         <></>
       )}
-      <Content
-        content={block.content}
-        isSelected={isSelected}
-        onBlur={(content) => onContentBlur(block.id, content)}
-      />
+      <Content content={block.content} blockId={block.id} />
     </div>
   );
 }

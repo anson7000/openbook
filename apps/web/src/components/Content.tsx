@@ -1,35 +1,40 @@
-import type { MouseEvent } from "react";
+import { useEffect, type MouseEvent } from "react";
 import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
+import { useEditorStore } from "../store/useEditorStore";
 
 interface ContentProps {
   content: string;
-  isSelected: boolean;
-  onBlur: (content: string) => void;
+  blockId: string;
 }
 
 const extensions = [StarterKit];
 
-export default function Content({ content, isSelected, onBlur }: ContentProps) {
+export default function Content({ content, blockId }: ContentProps) {
+  const { selectedPageId, setPageBlockContent } = useEditorStore();
   const editor = useEditor({
     extensions,
     editable: false,
     content: content,
   });
 
+  useEffect(() => {
+    if (!editor || editor.isFocused || editor.getHTML() === content) return;
+
+    editor.commands.setContent(content, { emitUpdate: false });
+  }, [content, editor]);
+
   const handleDoubleClick = (event: MouseEvent) => {
     event.stopPropagation();
 
-    if (isSelected) {
-      editor.setEditable(true);
-      editor.commands.focus();
-    }
+    editor.setEditable(true);
+    editor.commands.focus();
   };
 
-  const hanldeBlur = () => {
+  const handleBlur = () => {
     editor.setEditable(false);
     const htmlContent = editor.getHTML();
-    onBlur(htmlContent);
+    setPageBlockContent(selectedPageId, blockId, htmlContent);
   };
 
   return (
@@ -37,7 +42,7 @@ export default function Content({ content, isSelected, onBlur }: ContentProps) {
       className="select-none whitespace-pre-wrap"
       onDoubleClick={(event) => handleDoubleClick(event)}
     >
-      <EditorContent onBlur={hanldeBlur} editor={editor} />
+      <EditorContent onBlur={handleBlur} editor={editor} />
     </div>
   );
 }
