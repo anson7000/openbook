@@ -1,28 +1,21 @@
 import { createFileRoute } from "@tanstack/react-router";
 import Page from "../components/Page";
 import Toolbar from "../components/Toolbar";
-import type { Block } from "../types";
+import { useEditorStore } from "../store/useEditorStore";
 
 export const Route = createFileRoute("/")({
   component: Index,
 });
 
 function Index() {
-  const blocks: Block[] = [
-    {
-      id: "welcome",
-      type: "text",
-      x: 0,
-      y: 0,
-      width: 698,
-      height: 48,
-      content: "Hello, this is an A4 canvas. You can add your content here.",
-    },
-  ];
+  const { pages, selectedPageId } = useEditorStore();
 
   return (
     <div className="relative min-h-screen bg-muted p-2 print:min-h-0 print:bg-transparent print:p-0">
-      <Page initialBlocks={blocks} />
+      {pages.map(
+        (page) =>
+          page.id === selectedPageId && <Page key={page.id} page={page} />,
+      )}
       <Toolbar />
     </div>
   );

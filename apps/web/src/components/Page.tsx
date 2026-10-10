@@ -1,103 +1,57 @@
-import { useRef, useState } from "react";
-import type { Block } from "../types";
+import { useRef } from "react";
+import type { Block, Page } from "../types";
 import { useEditorStore } from "../store/useEditorStore";
 import BlockComponent from "./Block";
-import { useDrag } from "@use-gesture/react";
 
 interface PageProps {
-  initialBlocks: Block[];
+  page: Page;
 }
 
-export default function Page({ initialBlocks }: PageProps) {
+export default function Page({ page }: PageProps) {
   const ref = useRef<HTMLDivElement>(null);
-  const { pageWidth, pageHeight, mode, setMode } = useEditorStore();
-  const [blocks, setBlocks] = useState<Block[]>(initialBlocks);
-  const [selectedBlockId, setSelectedBlockId] = useState<string | null>(null);
+  const { mode, setMode, addPageBlock, setSelectedBlockId } = useEditorStore();
+  const blocks = page.blocks;
 
-  // Dont know why pressing the arrow key is treated as tap
-  const dragBind = useDrag(({ initial: [initialX, initialY], first, down }) => {
-    if (first && down) {
-      if (mode === "text") {
-        const page = ref.current;
-        if (!page) return;
+  const handlePointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
+    if (mode === "text") {
+      const canvas = ref.current;
+      if (!canvas || !page) return;
 
-        const rect = page.getBoundingClientRect();
-        const x = initialX - rect.left;
-        const y = initialY - rect.top;
+      const rect = canvas.getBoundingClientRect();
+      const x = event.clientX - rect.left;
+      const y = event.clientY - rect.top;
 
-        const newBlock: Block = {
-          id: Date.now().toString(),
-          type: "text",
-          x,
-          y,
-          width: 100,
-          height: 50,
-          content: "New Text",
-        };
+      const newBlock: Block = {
+        id: crypto.randomUUID(),
+        type: "text",
+        x,
+        y,
+        width: 100,
+        height: 50,
+        content: "New Text",
+      };
 
-        setBlocks([...blocks, newBlock]);
-      }
-
-      setSelectedBlockId(null);
-      setMode("select");
+      addPageBlock(page.id, newBlock);
     }
-  });
 
-  const handleBlockOnPointerDown = (blockId: string) => {
-    setSelectedBlockId(blockId);
-  };
-
-  const handleBlockDrag = (x: number, y: number) => {
-    if (!setSelectedBlockId) return;
-
-    setBlocks((previousBlocks) =>
-      previousBlocks.map((block) =>
-        block.id === selectedBlockId ? { ...block, x, y } : block,
-      ),
-    );
-  };
-
-  const handleResizeHandleDrag = (width: number, height: number) => {
-    if (!setSelectedBlockId) return;
-
-    setBlocks((previousBlocks) =>
-      previousBlocks.map((block) =>
-        block.id === selectedBlockId ? { ...block, width, height } : block,
-      ),
-    );
-  };
-
-  const handleContentBlur = (blockId: string, content: string) => {
-    setBlocks((previousBlocks) =>
-      previousBlocks.map((block) =>
-        block.id === blockId ? { ...block, content } : block,
-      ),
-    );
+    setSelectedBlockId(null);
+    setMode("select");
   };
 
   return (
     <div
       ref={ref}
-      {...dragBind()}
       className={
         "relative mx-auto border bg-background shadow-lg overflow-hidden touch-none print:mx-0 print:border-0 print:shadow-none"
       }
       style={{
-        width: pageWidth,
-        height: pageHeight,
+        width: page.width,
+        height: page.height,
       }}
+      onPointerDown={(event) => handlePointerDown(event)}
     >
       {blocks.map((block) => (
-        <BlockComponent
-          key={block.id}
-          block={block}
-          isSelected={selectedBlockId ? block.id == selectedBlockId : false}
-          bounds={ref}
-          onPointerDown={handleBlockOnPointerDown}
-          onDrag={handleBlockDrag}
-          onResizeHandleDrag={handleResizeHandleDrag}
-          onContentBlur={handleContentBlur}
-        />
+        <BlockComponent key={block.id} block={block} bounds={ref} />
       ))}
     </div>
   );
