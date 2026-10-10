@@ -1,28 +1,25 @@
-import { useEffect, type MouseEvent } from "react";
+import { type MouseEvent } from "react";
 import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import { useEditorStore } from "../store/useEditorStore";
+import { Mathematics, migrateMathStrings } from "@tiptap/extension-mathematics";
+import Image from "@tiptap/extension-image";
 
 interface ContentProps {
   content: string;
   blockId: string;
 }
 
-const extensions = [StarterKit];
-
 export default function Content({ content, blockId }: ContentProps) {
   const { selectedPageId, setPageBlockContent } = useEditorStore();
   const editor = useEditor({
-    extensions,
+    extensions: [StarterKit, Mathematics, Image],
     editable: false,
+    onCreate: ({ editor: currentEditor }) => {
+      migrateMathStrings(currentEditor);
+    },
     content: content,
   });
-
-  useEffect(() => {
-    if (!editor || editor.isFocused || editor.getHTML() === content) return;
-
-    editor.commands.setContent(content, { emitUpdate: false });
-  }, [content, editor]);
 
   const handleDoubleClick = (event: MouseEvent) => {
     event.stopPropagation();
@@ -33,8 +30,10 @@ export default function Content({ content, blockId }: ContentProps) {
 
   const handleBlur = () => {
     editor.setEditable(false);
-    const htmlContent = editor.getHTML();
-    setPageBlockContent(selectedPageId, blockId, htmlContent);
+
+    const stringContent = editor.getHTML();
+    console.log("Saving content for block", blockId, ":", stringContent);
+    setPageBlockContent(selectedPageId, blockId, stringContent);
   };
 
   return (
