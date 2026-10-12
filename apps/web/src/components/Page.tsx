@@ -1,58 +1,50 @@
-import { useRef } from "react";
-import type { Block, Page } from "../types";
+import { useState, useEffect } from "react";
+import Tile from "./Tile";
+import { type BSPNode, updateNode } from "../libs/bspTree";
 import { useEditorStore } from "../store/useEditorStore";
-import BlockComponent from "./Block";
 
-interface PageProps {
-  page: Page;
-}
+type PageProps = {
+  width: number;
+  height: number;
+};
 
-export default function Page({ page }: PageProps) {
-  const ref = useRef<HTMLDivElement>(null);
-  const { mode, setMode, addPageBlock, setSelectedBlockId } = useEditorStore();
-  const blocks = page.blocks;
+export default function Page({ width, height }: PageProps) {
+  const { selectedTileId } = useEditorStore();
+  const [bspTree, setBspTree] = useState<BSPNode>({
+    id: crypto.randomUUID(),
+    type: "leaf",
+    value: "",
+  });
 
-  const handlePointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
-    if (mode === "text") {
-      const canvas = ref.current;
-      if (!canvas || !page) return;
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (!selectedTileId) return;
+      e.preventDefault();
 
-      const rect = canvas.getBoundingClientRect();
-      const x = event.clientX - rect.left;
-      const y = event.clientY - rect.top;
+      if (e.ctrlKey && e.key === "d") {
+        setBspTree((prevTree) =>
+          updateNode(prevTree, selectedTileId, (node) => ({
+            id: `${crypto.randomUUID()}`,
+            type: "split",
+            axis: "y",
+            ratio: 0.5,
+            first: node,
+            second: { id: `${crypto.randomUUID()}`, type: "leaf", value: "" },
+          })),
+        );
+      }
+    };
 
-      const newBlock: Block = {
-        id: crypto.randomUUID(),
-        type: "text",
-        x,
-        y,
-        width: 100,
-        height: 50,
-        content: "New Text",
-      };
-
-      addPageBlock(page.id, newBlock);
-    }
-
-    setSelectedBlockId(null);
-    setMode("select");
-  };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [selectedTileId]);
 
   return (
     <div
-      ref={ref}
-      className={
-        "relative mx-auto border bg-background shadow-lg overflow-hidden touch-none print:mx-0 print:border-0 print:shadow-none"
-      }
-      style={{
-        width: page.width,
-        height: page.height,
-      }}
-      onPointerDown={(event) => handlePointerDown(event)}
+      className="relative mx-auto border bg-background shadow-lg overflow-hidden touch-none print:mx-0 print:border-0 print:shadow-none"
+      style={{ width, height }}
     >
-      {blocks.map((block) => (
-        <BlockComponent key={block.id} block={block} bounds={ref} />
-      ))}
+      <Tile node={bspTree} />
     </div>
   );
 }
