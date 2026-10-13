@@ -1,5 +1,7 @@
 import { type BSPNode } from "../libs/bspTree";
 import { useEditorStore } from "../store/useEditorStore";
+import TileLeaf from "./TileLeaf";
+import TileSplit from "./TileSplit";
 
 type TileProps = {
   node: BSPNode;
@@ -20,22 +22,9 @@ export default function Tile({ node }: TileProps) {
       onClick={handleClick}
     >
       {node.type === "split" ? (
-        <div className="flex flex-col w-full h-full">
-          <div className="flex-1 border border-dashed border-border">
-            <Tile node={node.first} />
-          </div>
-          <div className="flex-1 border border-dashed border-border">
-            <Tile node={node.second} />
-          </div>
-        </div>
+        <TileSplit node={node} axis={node.axis} />
       ) : (
-        <div
-          className={
-            isSelected ? "bg-blue-500 text-white" : "bg-white text-black"
-          }
-        >
-          {node.value}
-        </div>
+        <TileLeaf node={node} />
       )}
     </div>
   );

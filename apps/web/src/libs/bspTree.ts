@@ -1,10 +1,10 @@
-type LeafNode = {
+export type LeafNode = {
   id: string;
   type: "leaf";
   value: string;
 };
 
-type SplitNode = {
+export type SplitNode = {
   id: string;
   type: "split";
   axis: "x" | "y";

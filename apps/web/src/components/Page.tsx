@@ -3,13 +3,23 @@ import Tile from "./Tile";
 import { type BSPNode, updateNode } from "../libs/bspTree";
 import { useEditorStore } from "../store/useEditorStore";
 
+const splitShortcuts: Record<
+  string,
+  { axis: "x" | "y"; selectedFirst: boolean }
+> = {
+  ArrowUp: { axis: "y", selectedFirst: false },
+  ArrowDown: { axis: "y", selectedFirst: true },
+  ArrowLeft: { axis: "x", selectedFirst: false },
+  ArrowRight: { axis: "x", selectedFirst: true },
+};
+
 type PageProps = {
   width: number;
   height: number;
 };
 
 export default function Page({ width, height }: PageProps) {
-  const { selectedTileId } = useEditorStore();
+  const { selectedTileId, setSelectedTileId } = useEditorStore();
   const [bspTree, setBspTree] = useState<BSPNode>({
     id: crypto.randomUUID(),
     type: "leaf",
@@ -19,18 +29,30 @@ export default function Page({ width, height }: PageProps) {
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (!selectedTileId) return;
-      e.preventDefault();
 
-      if (e.ctrlKey && e.key === "d") {
+      if (e.key === "Escape") {
+        setSelectedTileId(null);
+      } else if (e.altKey) {
+        const shortcut = splitShortcuts[e.key];
+        if (!shortcut) return;
+        
         setBspTree((prevTree) =>
-          updateNode(prevTree, selectedTileId, (node) => ({
-            id: `${crypto.randomUUID()}`,
-            type: "split",
-            axis: "y",
-            ratio: 0.5,
-            first: node,
-            second: { id: `${crypto.randomUUID()}`, type: "leaf", value: "" },
-          })),
+          updateNode(prevTree, selectedTileId, (node) => {
+            const emptyTile = {
+              id: crypto.randomUUID(),
+              type: "leaf" as const,
+              value: "",
+            };
+
+            return {
+              id: crypto.randomUUID(),
+              type: "split" as const,
+              axis: shortcut.axis,
+              ratio: 0.5,
+              first: shortcut.selectedFirst ? node : emptyTile,
+              second: shortcut.selectedFirst ? emptyTile : node,
+            };
+          }),
         );
       }
     };
