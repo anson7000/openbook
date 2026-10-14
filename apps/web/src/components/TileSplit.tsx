@@ -8,10 +8,8 @@ type TileSplitProps = {
 
 export default function TileSplit({ node, axis }: TileSplitProps) {
   return (
-     <div
-      className={`flex w-full h-full ${
-        axis === "x" ? "flex-row" : "flex-col"
-      }`}
+    <div
+      className={`flex w-full h-full ${axis === "x" ? "flex-row" : "flex-col"}`}
     >
       <div className="flex-1">
         <Tile node={node.first} />

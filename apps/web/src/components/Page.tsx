@@ -19,12 +19,8 @@ type PageProps = {
 };
 
 export default function Page({ width, height }: PageProps) {
-  const { selectedTileId, setSelectedTileId } = useEditorStore();
-  const [bspTree, setBspTree] = useState<BSPNode>({
-    id: crypto.randomUUID(),
-    type: "leaf",
-    value: "",
-  });
+  const { selectedTileId, bspTree, setBspTree, setSelectedTileId } =
+    useEditorStore();
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -35,9 +31,9 @@ export default function Page({ width, height }: PageProps) {
       } else if (e.altKey) {
         const shortcut = splitShortcuts[e.key];
         if (!shortcut) return;
-        
-        setBspTree((prevTree) =>
-          updateNode(prevTree, selectedTileId, (node) => {
+
+        setBspTree((tree) =>
+          updateNode(tree, selectedTileId, (node) => {
             const emptyTile = {
               id: crypto.randomUUID(),
               type: "leaf" as const,

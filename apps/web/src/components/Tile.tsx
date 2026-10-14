@@ -9,7 +9,6 @@ type TileProps = {
 
 export default function Tile({ node }: TileProps) {
   const { selectedTileId, setSelectedTileId } = useEditorStore();
-  const isSelected = selectedTileId === node.id;
 
   const handleClick = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -18,7 +17,7 @@ export default function Tile({ node }: TileProps) {
 
   return (
     <div
-      className={`w-full h-full ${isSelected ? "border-2 border-blue-500" : "border"}`}
+      className={`w-full h-full`}
       onClick={handleClick}
     >
       {node.type === "split" ? (
