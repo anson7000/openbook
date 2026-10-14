@@ -7,7 +7,7 @@ export const Route = createFileRoute("/")({
 
 function Index() {
   return (
-    <div className="relative min-h-screen bg-muted my-10 print:min-h-0 print:bg-transparent print:p-0">
+    <div className="relative min-h-screen">
       <Canvas />
     </div>
   );
