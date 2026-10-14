@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import Tile from "./Tile";
-import { type BSPNode, updateNode } from "../libs/bspTree";
+import { updateNode } from "../libs/bspTree";
 import { useEditorStore } from "../store/useEditorStore";
 
 const splitShortcuts: Record<

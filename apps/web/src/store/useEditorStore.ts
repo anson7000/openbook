@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { updateNode, type BSPNode } from "../libs/bspTree";
+import { type BSPNode } from "../libs/bspTree";
 
 type EditorState = {
   bspTree: BSPNode;
