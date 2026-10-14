@@ -29,6 +29,8 @@ export default function Page({ width, height }: PageProps) {
       if (e.key === "Escape") {
         setSelectedTileId(null);
       } else if (e.altKey) {
+        e.preventDefault();
+
         const shortcut = splitShortcuts[e.key];
         if (!shortcut) return;
 

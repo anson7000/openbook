@@ -3,6 +3,7 @@ import { type SplitNode } from "../libs/bspTree";
 import { updateNode } from "../libs/bspTree";
 import { useEditorStore } from "../store/useEditorStore";
 import TileDivider from "./TileDivider";
+import { useRef } from "react";
 
 type TileSplitProps = {
   node: SplitNode;
@@ -10,6 +11,7 @@ type TileSplitProps = {
 };
 
 export default function TileSplit({ node, axis }: TileSplitProps) {
+  const tileRef = useRef<HTMLDivElement>(null);
   const { setBspTree } = useEditorStore();
 
   const handleResize = (ratio: number) => {
@@ -22,7 +24,8 @@ export default function TileSplit({ node, axis }: TileSplitProps) {
 
   return (
     <div
-      className="grid w-full h-full"
+      ref={tileRef}
+      className="relative grid w-full h-full"
       style={{
         gridTemplateColumns:
           axis === "x" ? `${node.ratio}fr ${1 - node.ratio}fr` : undefined,
@@ -51,7 +54,7 @@ export default function TileSplit({ node, axis }: TileSplitProps) {
               }
         }
       >
-        <TileDivider axis={axis} ratio={node.ratio} onResize={handleResize} />
+        <TileDivider axis={axis} ratio={node.ratio}  bounds={tileRef.current?.getBoundingClientRect() || new DOMRect()} onResize={handleResize} />
       </div>
       <div className="min-w-0 min-h-0">
         <Tile node={node.second} />
