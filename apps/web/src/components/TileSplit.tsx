@@ -33,7 +33,7 @@ export default function TileSplit({ node, axis }: TileSplitProps) {
           axis === "y" ? `${node.ratio}fr ${1 - node.ratio}fr` : undefined,
       }}
     >
-      <div className="min-w-0 min-h-0">
+      <div key={node.first.id} className="min-w-0 min-h-0">
         <Tile node={node.first} />
       </div>
       <div
@@ -54,9 +54,14 @@ export default function TileSplit({ node, axis }: TileSplitProps) {
               }
         }
       >
-        <TileDivider axis={axis} ratio={node.ratio}  bounds={tileRef.current?.getBoundingClientRect() || new DOMRect()} onResize={handleResize} />
+        <TileDivider
+          axis={axis}
+          ratio={node.ratio}
+          bounds={tileRef.current?.getBoundingClientRect() || new DOMRect()}
+          onResize={handleResize}
+        />
       </div>
-      <div className="min-w-0 min-h-0">
+      <div key={node.second.id} className="min-w-0 min-h-0">
         <Tile node={node.second} />
       </div>
     </div>
