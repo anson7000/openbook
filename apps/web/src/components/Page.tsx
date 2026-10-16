@@ -1,58 +1,93 @@
-import { useRef } from "react";
-import type { Block, Page } from "../types";
+import { useEffect } from "react";
+import Tile from "./Tile";
+import { removeNode, updateNode } from "../libs/bspTree";
 import { useEditorStore } from "../store/useEditorStore";
-import BlockComponent from "./Block";
 
-interface PageProps {
-  page: Page;
-}
+const splitShortcuts: Record<
+  string,
+  { axis: "x" | "y"; selectedFirst: boolean }
+> = {
+  ArrowUp: { axis: "y", selectedFirst: false },
+  ArrowDown: { axis: "y", selectedFirst: true },
+  ArrowLeft: { axis: "x", selectedFirst: false },
+  ArrowRight: { axis: "x", selectedFirst: true },
+};
 
-export default function Page({ page }: PageProps) {
-  const ref = useRef<HTMLDivElement>(null);
-  const { mode, setMode, addPageBlock, setSelectedBlockId } = useEditorStore();
-  const blocks = page.blocks;
+type PageProps = {
+  width: number;
+  height: number;
+};
 
-  const handlePointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
-    if (mode === "text") {
-      const canvas = ref.current;
-      if (!canvas || !page) return;
+export default function Page({ width, height }: PageProps) {
+  const { selectedTileId, bspTree, setBspTree, setSelectedTileId } =
+    useEditorStore();
 
-      const rect = canvas.getBoundingClientRect();
-      const x = event.clientX - rect.left;
-      const y = event.clientY - rect.top;
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (!selectedTileId) return;
 
-      const newBlock: Block = {
-        id: crypto.randomUUID(),
-        type: "text",
-        x,
-        y,
-        width: 100,
-        height: 50,
-        content: "New Text",
-      };
+      if (e.key === "Escape") {
+        setSelectedTileId(null);
+      }
+    };
 
-      addPageBlock(page.id, newBlock);
-    }
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [selectedTileId, setSelectedTileId]);
 
-    setSelectedBlockId(null);
-    setMode("select");
-  };
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (!selectedTileId || !e.altKey) return;
+
+      const shortcut = splitShortcuts[e.key];
+      if (!shortcut) return;
+
+      e.preventDefault();
+      setBspTree((tree) =>
+        updateNode(tree, selectedTileId, (node) => {
+          const emptyTile = {
+            id: crypto.randomUUID(),
+            type: "leaf" as const,
+            value: "",
+          };
+
+          return {
+            id: crypto.randomUUID(),
+            type: "split" as const,
+            axis: shortcut.axis,
+            ratio: 0.5,
+            first: shortcut.selectedFirst ? node : emptyTile,
+            second: shortcut.selectedFirst ? emptyTile : node,
+          };
+        }),
+      );
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [selectedTileId, setBspTree]);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (!selectedTileId || e.key !== "Delete") return;
+
+      const nextNode = removeNode(bspTree, selectedTileId);
+      if (nextNode) {
+        setBspTree(nextNode);
+        setSelectedTileId(null);
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [bspTree, selectedTileId, setBspTree, setSelectedTileId]);
 
   return (
     <div
-      ref={ref}
-      className={
-        "relative mx-auto border bg-background shadow-lg overflow-hidden touch-none print:mx-0 print:border-0 print:shadow-none"
-      }
-      style={{
-        width: page.width,
-        height: page.height,
-      }}
-      onPointerDown={(event) => handlePointerDown(event)}
+      className="print-page relative mx-auto border bg-background shadow-lg overflow-hidden"
+      style={{ width, height }}
     >
-      {blocks.map((block) => (
-        <BlockComponent key={block.id} block={block} bounds={ref} />
-      ))}
+      <Tile node={bspTree} />
     </div>
   );
 }

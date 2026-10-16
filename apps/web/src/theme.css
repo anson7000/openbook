@@ -122,35 +122,25 @@
   --radius-4xl: calc(var(--radius) * 2.6);
 }
 
-/* Print / "Save as PDF" export.
-   Only the page canvas is exported: everything around it opts out via the
-   Tailwind `print:` variant, and the paper is sized to match the canvas in
-   useEditorStore (794 x 1123 px == A4 at 96dpi). Keep these dimensions in
-   sync if pageWidth / pageHeight ever change. */
 @page {
-  size: 794px 1123px;
+  size: A4 landscape;
   margin: 0;
 }
 
+/* Hide everything except the print-page class when printing */
 @media print {
-  html,
-  body {
-    background: #fff;
+  #root * {
+    visibility: hidden;
   }
 
-  /* Pin the light palette so a dark-mode session doesn't export inverted. */
-  :root,
-  .dark {
-    --background: oklch(1 0 0);
-    --foreground: oklch(0.145 0 0);
+  #root .print-page,
+  #root .print-page * {
+    visibility: visible;
   }
 
-  /* Browsers strip backgrounds by default; opt back in for the canvas. */
-  *,
-  *::before,
-  *::after {
-    -webkit-print-color-adjust: exact;
-    print-color-adjust: exact;
-    box-shadow: none;
+  #root .print-page {
+    position: absolute;
+    top: 0;
+    left: 0;
   }
 }

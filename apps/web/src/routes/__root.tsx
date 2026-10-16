@@ -4,7 +4,7 @@ import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 const RootLayout = () => (
   <>
     <Outlet />
-    <div className="print:hidden">
+    <div>
       <TanStackRouterDevtools />
     </div>
   </>
