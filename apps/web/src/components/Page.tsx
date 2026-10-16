@@ -84,7 +84,7 @@ export default function Page({ width, height }: PageProps) {
 
   return (
     <div
-      className="print-page relative mx-auto border bg-background shadow-lg overflow-hidden"
+      className="print-page relative mx-0 border bg-background shadow-lg overflow-hidden"
       style={{ width, height }}
     >
       <Tile node={bspTree} />
