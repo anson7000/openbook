@@ -1,5 +1,5 @@
 import Tile from "./Tile";
-import { type SplitNode } from "../lib/bspTree";
+import { type SplitNode } from "../lib/types";
 import { updateNode } from "../lib/bspTree";
 import { useEditorStore } from "../store/useEditorStore";
 import TileDivider from "./TileDivider";
@@ -12,11 +12,18 @@ type TileSplitProps = {
 
 export default function TileSplit({ node, axis }: TileSplitProps) {
   const tileRef = useRef<HTMLDivElement>(null);
-  const { setBspTree } = useEditorStore();
+  const { pages, selectedPageId, bspTrees, registerBspTree } = useEditorStore();
+  
+  const page = pages.find((page) => page.id === selectedPageId);
+  if (!page) return null;
+
+  const bspTree = bspTrees.get(page.bspTreeId);
+  if (!bspTree) return null;
 
   const handleResize = (ratio: number) => {
-    setBspTree((tree) =>
-      updateNode(tree, node.id, (currentNode) =>
+    registerBspTree(
+      page.bspTreeId,
+      updateNode(bspTree, node.id, (currentNode) =>
         currentNode.type === "split" ? { ...currentNode, ratio } : currentNode,
       ),
     );

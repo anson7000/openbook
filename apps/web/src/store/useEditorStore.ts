@@ -1,34 +1,60 @@
 import { create } from "zustand";
-import type { Editor } from "@tiptap/react";
-import { type BSPNode } from "../lib/bspTree";
+import { type BSPNode, type Page } from "../lib/types";
+import { type Editor } from "@tiptap/react";
 
 type EditorState = {
-  bspTree: BSPNode;
+  bspTrees: Map<string, BSPNode>;
+  pages: Page[];
+  editors: Map<string, Editor>; // Assume tile id is unique
+  selectedPageId: string;
   selectedTileId: string | null;
-  activeEditor: Editor | null;
-  setBspTree: (update: BSPNode | ((tree: BSPNode) => BSPNode)) => void;
+  setPages: (pages: Page[]) => void;
+  registerBspTree: (id: string, bspTree: BSPNode) => void;
+  registerEditor: (id: string, editor: Editor) => void;
+  unregisterEditor: (id: string) => void;
+  setSelectedPageId: (id: string) => void;
   setSelectedTileId: (id: string | null) => void;
-  setActiveEditor: (editor: Editor | null) => void; // Expose active editor for the Right Panel
-  clearActiveEditor: (editor: Editor) => void;
+};
+
+const initialTree: BSPNode = {
+  id: crypto.randomUUID(),
+  type: "leaf",
+  name: "New Tile",
+  value: "",
+};
+const initialPage: Page = {
+  id: crypto.randomUUID(),
+  name: "Page 1",
+  bspTreeId: initialTree.id,
 };
 
 export const useEditorStore = create<EditorState>((set) => ({
-  bspTree: {
-    id: crypto.randomUUID(),
-    name: "Root",
-    type: "leaf",
-    value: "",
-  },
+  bspTrees: new Map([[initialTree.id, initialTree]]),
+  pages: [initialPage],
+  editors: new Map(),
+  selectedPageId: initialPage.id,
   selectedTileId: null,
-  activeEditor: null,
-  setBspTree: (update) =>
-    set((state) => ({
-      bspTree: typeof update === "function" ? update(state.bspTree) : update,
-    })),
+  setPages: (pages) => set({ pages }),
+  registerBspTree: (id, bspTree) =>
+    set((state) => {
+      const bspTrees = new Map(state.bspTrees);
+      bspTrees.set(id, bspTree);
+      return { bspTrees };
+    }),
+  registerEditor: (id, editor) =>
+    set((state) => {
+      const editors = new Map(state.editors);
+      editors.set(id, editor);
+      return { editors };
+    }),
+
+  unregisterEditor: (id) =>
+    set((state) => {
+      const editors = new Map(state.editors);
+      editors.delete(id);
+      return { editors };
+    }),
+
+  setSelectedPageId: (id) => set({ selectedPageId: id }),
   setSelectedTileId: (id) => set({ selectedTileId: id }),
-  setActiveEditor: (activeEditor) => set({ activeEditor }),
-  clearActiveEditor: (editor) =>
-    set((state) =>
-      state.activeEditor === editor ? { activeEditor: null } : state,
-    ),
 }));

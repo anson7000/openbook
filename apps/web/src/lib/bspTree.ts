@@ -1,20 +1,4 @@
-export type LeafNode = {
-  id: string;
-  type: "leaf";
-  name: string;
-  value: string;
-};
-
-export type SplitNode = {
-  id: string;
-  type: "split";
-  axis: "x" | "y";
-  ratio: number;
-  first: BSPNode;
-  second: BSPNode;
-};
-
-export type BSPNode = LeafNode | SplitNode;
+import { type BSPNode, type LeafNode } from "./types";
 
 export function updateNode(
   node: BSPNode,
@@ -44,4 +28,9 @@ export function findLeaves(node: BSPNode): LeafNode[] {
   return node.type === "leaf"
     ? [node]
     : [...findLeaves(node.first), ...findLeaves(node.second)];
+}
+
+export function findLeaveById(node: BSPNode, id: string): LeafNode | null {
+  if (node.type === "leaf") return node.id === id ? node : null;
+  return findLeaveById(node.first, id) || findLeaveById(node.second, id);
 }

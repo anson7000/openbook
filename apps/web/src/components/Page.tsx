@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import Tile from "./Tile";
 import { removeNode, updateNode } from "../lib/bspTree";
 import { useEditorStore } from "../store/useEditorStore";
+import type { BSPNode } from "../lib/types";
 
 const splitShortcuts: Record<
   string,
@@ -19,8 +20,20 @@ type PageProps = {
 };
 
 export default function Page({ width, height }: PageProps) {
-  const { selectedTileId, bspTree, setBspTree, setSelectedTileId } =
-    useEditorStore();
+  const {
+    pages,
+    selectedPageId,
+    selectedTileId,
+    bspTrees,
+    registerBspTree,
+    setSelectedTileId,
+  } = useEditorStore();
+
+  const page = pages.find((page) => page.id === selectedPageId);
+  if (!page) return null;
+
+  const bspTree = bspTrees.get(page.bspTreeId);
+  if (!bspTree) return null;
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -33,7 +46,7 @@ export default function Page({ width, height }: PageProps) {
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [selectedTileId, setSelectedTileId]);
+  }, [selectedTileId]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -43,30 +56,31 @@ export default function Page({ width, height }: PageProps) {
       if (!shortcut) return;
 
       e.preventDefault();
-      setBspTree((tree) =>
-        updateNode(tree, selectedTileId, (node) => {
-          const emptyTile = {
-            id: crypto.randomUUID(),
-            name: "New Tile",
-            type: "leaf" as const,
-            value: "",
-          };
 
-          return {
-            id: crypto.randomUUID(),
-            type: "split" as const,
-            axis: shortcut.axis,
-            ratio: 0.5,
-            first: shortcut.selectedFirst ? node : emptyTile,
-            second: shortcut.selectedFirst ? emptyTile : node,
-          };
-        }),
-      );
+      const newTile: BSPNode = {
+        id: crypto.randomUUID(),
+        type: "leaf",
+        name: "New Tile",
+        value: "",
+      };
+
+      const newBspTree = updateNode(bspTree, selectedTileId, (node) => {
+        return {
+          id: crypto.randomUUID(),
+          type: "split",
+          axis: shortcut.axis,
+          ratio: 0.5,
+          first: shortcut.selectedFirst ? node : newTile,
+          second: shortcut.selectedFirst ? newTile : node,
+        };
+      });
+
+      registerBspTree(page.bspTreeId, newBspTree);
     };
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [selectedTileId, setBspTree]);
+  }, [selectedTileId, bspTree, page.bspTreeId]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -74,14 +88,14 @@ export default function Page({ width, height }: PageProps) {
 
       const nextNode = removeNode(bspTree, selectedTileId);
       if (nextNode) {
-        setBspTree(nextNode);
+        registerBspTree(page.bspTreeId, nextNode);
         setSelectedTileId(null);
       }
     };
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [bspTree, selectedTileId, setBspTree, setSelectedTileId]);
+  }, [bspTree, selectedTileId, page.bspTreeId]);
 
   return (
     <div
