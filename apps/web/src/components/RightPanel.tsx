@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { useEditorStore } from "../store/useEditorStore";
-import { findLeaveById } from "../lib/bspTree";
 
 type MarkState = {
   bold: boolean;
