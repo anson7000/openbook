@@ -11,7 +11,12 @@ type TileLeafProps = {
 };
 
 export default function TileLeaf({ node }: TileLeafProps) {
-  const { setBspTree, selectedTileId } = useEditorStore();
+  const {
+    setBspTree,
+    selectedTileId,
+    setActiveEditor,
+    clearActiveEditor,
+  } = useEditorStore();
   const isSelected = selectedTileId === node.id;
 
   const saveContent = (htmlContent: string) => {
@@ -42,10 +47,12 @@ export default function TileLeaf({ node }: TileLeafProps) {
   });
 
   useEffect(() => {
-    if (isSelected) {
-      editor?.commands.focus();
-    }
-  }, [isSelected, editor]);
+    if (!editor || !isSelected) return;
+
+    setActiveEditor(editor);
+    editor?.commands.focus();
+    return () => clearActiveEditor(editor);
+  }, [isSelected, editor, setActiveEditor, clearActiveEditor]);
 
   return (
     <div
