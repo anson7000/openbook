@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import Tile from "./Tile";
-import { removeNode, updateNode } from "../libs/bspTree";
+import { removeNode, updateNode } from "../lib/bspTree";
 import { useEditorStore } from "../store/useEditorStore";
 
 const splitShortcuts: Record<
@@ -47,6 +47,7 @@ export default function Page({ width, height }: PageProps) {
         updateNode(tree, selectedTileId, (node) => {
           const emptyTile = {
             id: crypto.randomUUID(),
+            name: "New Tile",
             type: "leaf" as const,
             value: "",
           };

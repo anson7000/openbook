@@ -1,5 +1,5 @@
 import { EditorContent, useEditor } from "@tiptap/react";
-import { updateNode, type LeafNode } from "../libs/bspTree";
+import { updateNode, type LeafNode } from "../lib/bspTree";
 import { useEditorStore } from "../store/useEditorStore";
 import StarterKit from "@tiptap/starter-kit";
 import { Mathematics, migrateMathStrings } from "@tiptap/extension-mathematics";
@@ -11,12 +11,8 @@ type TileLeafProps = {
 };
 
 export default function TileLeaf({ node }: TileLeafProps) {
-  const {
-    setBspTree,
-    selectedTileId,
-    setActiveEditor,
-    clearActiveEditor,
-  } = useEditorStore();
+  const { setBspTree, selectedTileId, setActiveEditor, clearActiveEditor } =
+    useEditorStore();
   const isSelected = selectedTileId === node.id;
 
   const saveContent = (htmlContent: string) => {

@@ -1,6 +1,6 @@
 import Tile from "./Tile";
-import { type SplitNode } from "../libs/bspTree";
-import { updateNode } from "../libs/bspTree";
+import { type SplitNode } from "../lib/bspTree";
+import { updateNode } from "../lib/bspTree";
 import { useEditorStore } from "../store/useEditorStore";
 import TileDivider from "./TileDivider";
 import { useRef } from "react";

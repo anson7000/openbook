@@ -1,4 +1,4 @@
-import { type BSPNode } from "../libs/bspTree";
+import { type BSPNode } from "../lib/bspTree";
 import { useEditorStore } from "../store/useEditorStore";
 import TileLeaf from "./TileLeaf";
 import TileSplit from "./TileSplit";

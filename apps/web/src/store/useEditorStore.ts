@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import type { Editor } from "@tiptap/react";
-import { type BSPNode } from "../libs/bspTree";
+import { type BSPNode } from "../lib/bspTree";
 
 type EditorState = {
   bspTree: BSPNode;
@@ -15,6 +15,7 @@ type EditorState = {
 export const useEditorStore = create<EditorState>((set) => ({
   bspTree: {
     id: crypto.randomUUID(),
+    name: "Root",
     type: "leaf",
     value: "",
   },

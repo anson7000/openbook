@@ -1,6 +1,7 @@
 export type LeafNode = {
   id: string;
   type: "leaf";
+  name: string;
   value: string;
 };
 
