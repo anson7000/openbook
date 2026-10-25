@@ -1,5 +1,6 @@
 import { EditorContent, useEditor } from "@tiptap/react";
-import { updateNode, type LeafNode } from "../libs/bspTree";
+import { type LeafNode } from "../lib/types";
+import { updateNode } from "../lib/bspTree";
 import { useEditorStore } from "../store/useEditorStore";
 import StarterKit from "@tiptap/starter-kit";
 import { Mathematics, migrateMathStrings } from "@tiptap/extension-mathematics";
@@ -12,24 +13,31 @@ type TileLeafProps = {
 
 export default function TileLeaf({ node }: TileLeafProps) {
   const {
-    setBspTree,
+    pages,
+    bspTrees,
+    selectedPageId,
     selectedTileId,
-    setActiveEditor,
-    clearActiveEditor,
+    registerBspTree,
+    registerEditor,
+    unregisterEditor,
   } = useEditorStore();
   const isSelected = selectedTileId === node.id;
 
-  const saveContent = (htmlContent: string) => {
-    setBspTree((tree) =>
-      updateNode(tree, node.id, (currentNode) => {
-        if (currentNode.type !== "leaf") return currentNode;
+  const page = pages.find((page) => page.id === selectedPageId);
+  if (!page) return null;
 
-        return {
-          ...currentNode,
-          value: htmlContent,
-        };
-      }),
-    );
+  const bspTree = bspTrees.get(page.bspTreeId);
+  if (!bspTree) return null;
+
+  const saveContent = (htmlContent: string) => {
+    const newBspTree = updateNode(bspTree, node.id, (currentNode) => {
+      return {
+        ...currentNode,
+        value: htmlContent,
+      };
+    });
+
+    registerBspTree(page.bspTreeId, newBspTree);
   };
 
   const editor = useEditor({
@@ -49,10 +57,18 @@ export default function TileLeaf({ node }: TileLeafProps) {
   useEffect(() => {
     if (!editor || !isSelected) return;
 
-    setActiveEditor(editor);
     editor?.commands.focus();
-    return () => clearActiveEditor(editor);
-  }, [isSelected, editor, setActiveEditor, clearActiveEditor]);
+  }, [isSelected, editor]);
+
+  useEffect(() => {
+    if (!editor) return;
+
+    registerEditor(node.id, editor);
+
+    return () => {
+      unregisterEditor(node.id);
+    };
+  }, [editor, node.id, registerEditor, unregisterEditor]);
 
   return (
     <div

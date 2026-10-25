@@ -14,8 +14,10 @@ const inactiveMarks: MarkState = {
 };
 
 export default function RightPanel() {
-  const editor = useEditorStore((state) => state.activeEditor);
+  const { editors, selectedTileId } = useEditorStore();
   const [marks, setMarks] = useState(inactiveMarks);
+
+  const editor = editors.get(selectedTileId ?? "");
 
   useEffect(() => {
     if (!editor) {
@@ -49,7 +51,11 @@ export default function RightPanel() {
       aria-label="Formatting panel"
       className="h-full w-80 shrink-0 border-l bg-background p-6"
     >
-      <div className="mt-4 flex gap-1" role="toolbar" aria-label="Text formatting">
+      <div
+        className="mt-4 flex gap-1"
+        role="toolbar"
+        aria-label="Text formatting"
+      >
         <button
           type="button"
           className={`${formatButtonClass} font-bold ${
