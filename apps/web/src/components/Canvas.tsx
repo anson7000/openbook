@@ -78,7 +78,7 @@ export default function Canvas() {
         }}
       >
         <div
-          className="absolute left-0 top-0 origin-top-left"
+          className="canvas-zoom absolute left-0 top-0 origin-top-left"
           style={{ transform: `scale(${zoom})` }}
         >
           <Page width={PAGE_WIDTH} height={PAGE_HEIGHT} />
