@@ -3,6 +3,8 @@ import { type LeafNode } from "../lib/types";
 import { updateNode } from "../lib/bspTree";
 import { useEditorStore } from "../store/useEditorStore";
 import StarterKit from "@tiptap/starter-kit";
+import { FontSize, TextStyle } from "@tiptap/extension-text-style";
+import { FontSizeStrut } from "../lib/fontSizeStrut";
 import { Mathematics, migrateMathStrings } from "@tiptap/extension-mathematics";
 import Image from "@tiptap/extension-image";
 import { useEffect } from "react";
@@ -41,7 +43,14 @@ export default function TileLeaf({ node }: TileLeafProps) {
   };
 
   const editor = useEditor({
-    extensions: [StarterKit, Mathematics, Image],
+    extensions: [
+      StarterKit,
+      Mathematics,
+      Image,
+      TextStyle,
+      FontSize,
+      FontSizeStrut,
+    ],
     editable: true,
     content: node.value,
 
