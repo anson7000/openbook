@@ -72,7 +72,7 @@ export default function TileLeaf({ node }: TileLeafProps) {
 
   return (
     <div
-      className={`w-full h-full ${
+      className={`w-full h-full overflow-clip ${
         isSelected ? "border-2 border-blue-500" : "border"
       }`}
     >
