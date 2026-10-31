@@ -21,10 +21,8 @@ const FONT_SIZES = [8, 9, 10, 11, 12, 14, 16, 18, 20, 24, 32, 48, 60, 72, 96];
 const BASE_FONT_SIZE = `${BASE_FONT_SIZE_PX}px`;
 
 export default function RightPanel() {
-  const { editors, selectedTileId } = useEditorStore();
+  const { selectedEditor: editor } = useEditorStore();
   const [marks, setMarks] = useState(inactiveMarks);
-
-  const editor = editors.get(selectedTileId ?? "");
 
   useEffect(() => {
     if (!editor) {

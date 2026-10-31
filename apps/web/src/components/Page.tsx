@@ -3,6 +3,8 @@ import Tile from "./Tile";
 import { removeNode, updateNode } from "../lib/bspTree";
 import { useEditorStore } from "../store/useEditorStore";
 import type { BSPNode } from "../lib/types";
+import { useLiveQuery } from "dexie-react-hooks";
+import { db } from "../lib/db";
 
 const splitShortcuts: Record<
   string,
@@ -20,20 +22,13 @@ type PageProps = {
 };
 
 export default function Page({ width, height }: PageProps) {
-  const {
-    pages,
-    selectedPageId,
-    selectedTileId,
-    bspTrees,
-    registerBspTree,
-    setSelectedTileId,
-  } = useEditorStore();
+  const { selectedPageId, selectedTileId, setSelectedTileId } =
+    useEditorStore();
 
-  const page = pages.find((page) => page.id === selectedPageId);
-  if (!page) return null;
-
-  const bspTree = bspTrees.get(page.bspTreeId);
-  if (!bspTree) return null;
+  const page = useLiveQuery(
+    () => (selectedPageId ? db.pages.get(selectedPageId) : undefined),
+    [selectedPageId],
+  );
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -50,7 +45,7 @@ export default function Page({ width, height }: PageProps) {
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (!selectedTileId || !e.altKey) return;
+      if (!page || !selectedTileId || !e.altKey) return;
 
       const shortcut = splitShortcuts[e.key];
       if (!shortcut) return;
@@ -64,7 +59,7 @@ export default function Page({ width, height }: PageProps) {
         value: "",
       };
 
-      const newBspTree = updateNode(bspTree, selectedTileId, (node) => {
+      const newBspTree = updateNode(page.bspTree, selectedTileId, (node) => {
         return {
           id: crypto.randomUUID(),
           type: "split",
@@ -75,34 +70,36 @@ export default function Page({ width, height }: PageProps) {
         };
       });
 
-      registerBspTree(page.bspTreeId, newBspTree);
+      db.pages.update(page.id, { bspTree: newBspTree });
     };
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [selectedTileId, bspTree, page.bspTreeId]);
+  }, [selectedTileId, page?.bspTree, page?.id]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (!selectedTileId || e.key !== "Delete") return;
+      if (!page || !selectedTileId || e.key !== "Delete") return;
 
-      const nextNode = removeNode(bspTree, selectedTileId);
+      const nextNode = removeNode(page.bspTree, selectedTileId);
       if (nextNode) {
-        registerBspTree(page.bspTreeId, nextNode);
+        db.pages.update(page.id, { bspTree: nextNode });
         setSelectedTileId(null);
       }
     };
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [bspTree, selectedTileId, page.bspTreeId]);
+  }, [page?.id, selectedTileId, page?.bspTree]);
+
+  if (!page) return null;
 
   return (
     <div
       className="print-page relative mx-0 border bg-background shadow-lg overflow-hidden"
       style={{ width, height }}
     >
-      <Tile node={bspTree} />
+      <Tile node={page.bspTree} page={page} />
     </div>
   );
 }

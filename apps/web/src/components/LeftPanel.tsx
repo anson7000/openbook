@@ -1,28 +1,34 @@
 import { findLeaves, updateNode } from "../lib/bspTree";
 import { useEditorStore } from "../store/useEditorStore";
 import { useState } from "react";
+import { db } from "../lib/db";
+import { useLiveQuery } from "dexie-react-hooks";
 
 export default function LeftPanel() {
   const {
-    pages,
-    bspTrees,
+    selectedCheatsheetId,
     selectedPageId,
     selectedTileId,
-    registerBspTree,
-    setPages,
     setSelectedPageId,
     setSelectedTileId,
   } = useEditorStore();
   const [editingTileId, setEditingTileId] = useState<string | null>(null);
   const [draftName, setDraftName] = useState("");
 
-  const selectedPage = pages.find((page) => page.id === selectedPageId);
-  if (!selectedPage) return null;
+  const pages =
+    useLiveQuery(
+      () =>
+        selectedCheatsheetId
+          ? db.pages
+              .where("cheatsheetId")
+              .equals(selectedCheatsheetId)
+              .sortBy("order")
+          : [],
+      [selectedCheatsheetId],
+    ) ?? [];
 
-  const bspTree = bspTrees.get(selectedPage.bspTreeId);
-  if (!bspTree) return null;
-
-  const tiles = findLeaves(bspTree);
+  const page = pages.find((page) => page.id === selectedPageId);
+  const tiles = page ? findLeaves(page.bspTree) : [];
 
   const handleTileItemEdit = (id: string, name: string) => {
     setSelectedTileId(id);
@@ -31,23 +37,32 @@ export default function LeftPanel() {
   };
 
   const hanldeTileItemEditFinish = () => {
-    if (!editingTileId) return;
+    if (!editingTileId || !page) {
+      setEditingTileId(null);
+      return;
+    }
 
     const nextName = draftName.trim();
     if (nextName) {
-      const newBspTree = updateNode(bspTree, editingTileId, (currentNode) => {
-        return {
-          ...currentNode,
-          name: nextName,
-        };
-      });
+      const newBspTree = updateNode(
+        page.bspTree,
+        editingTileId,
+        (currentNode) => {
+          return {
+            ...currentNode,
+            name: nextName,
+          };
+        },
+      );
 
-      registerBspTree(selectedPage.bspTreeId, newBspTree);
+      db.pages.update(page.id, { bspTree: newBspTree });
     }
     setEditingTileId(null);
   };
 
-  const handleAddPage = () => {
+  const handleAddPage = async () => {
+    if (!selectedCheatsheetId) return;
+
     const newTree = {
       id: crypto.randomUUID(),
       type: "leaf" as const,
@@ -56,21 +71,21 @@ export default function LeftPanel() {
     };
 
     const newPage = {
-      id: crypto.randomUUID(),
       name: `Page ${pages.length + 1}`,
-      bspTreeId: newTree.id,
+      order: pages.length,
+      bspTree: newTree,
+      cheatsheetId: selectedCheatsheetId,
     };
 
-    registerBspTree(newTree.id, newTree);
-    setPages([...pages, newPage]);
-    setSelectedPageId(newPage.id);
+    const pageId = await db.pages.add(newPage);
+    setSelectedPageId(pageId);
     setSelectedTileId(null);
   };
 
   const handleSelectPage = (pageId: string) => {
     setSelectedPageId(pageId);
     setSelectedTileId(null);
-  }
+  };
 
   return (
     <aside
