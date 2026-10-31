@@ -9,6 +9,7 @@ type TileDividerProps = {
   ratio: number;
   bounds: DOMRect;
   onResize: (ratio: number) => void;
+  onResizeEnd: (ratio: number) => void;
 };
 
 export default function TileDivider({
@@ -16,11 +17,12 @@ export default function TileDivider({
   ratio,
   bounds,
   onResize,
+  onResizeEnd,
 }: TileDividerProps) {
   const dividerRef = useRef<HTMLDivElement>(null);
 
   const bind = useDrag(
-    ({ first, xy: [clientX, clientY], memo }) => {
+    ({ first, last, xy: [clientX, clientY], memo }) => {
       if (first) {
         memo = {
           initRatio: ratio,
@@ -39,6 +41,7 @@ export default function TileDivider({
       );
 
       onResize(newRatio);
+      if (last) onResizeEnd(newRatio);
     },
     { filterTaps: true },
   );

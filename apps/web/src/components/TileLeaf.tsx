@@ -1,5 +1,5 @@
 import { EditorContent, useEditor } from "@tiptap/react";
-import { type LeafNode } from "../lib/types";
+import { type LeafNode, type Page } from "../lib/types";
 import { updateNode } from "../lib/bspTree";
 import { useEditorStore } from "../store/useEditorStore";
 import StarterKit from "@tiptap/starter-kit";
@@ -7,39 +7,42 @@ import { FontSize, TextStyle } from "@tiptap/extension-text-style";
 import { FontSizeStrut } from "../lib/fontSizeStrut";
 import { Mathematics, migrateMathStrings } from "@tiptap/extension-mathematics";
 import Image from "@tiptap/extension-image";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
+import { db } from "../lib/db";
 
 type TileLeafProps = {
   node: LeafNode;
+  page: Page;
 };
 
-export default function TileLeaf({ node }: TileLeafProps) {
-  const {
-    pages,
-    bspTrees,
-    selectedPageId,
-    selectedTileId,
-    registerBspTree,
-    registerEditor,
-    unregisterEditor,
-  } = useEditorStore();
+export default function TileLeaf({ node, page }: TileLeafProps) {
+  const { selectedTileId, setSelectedEditor } = useEditorStore();
   const isSelected = selectedTileId === node.id;
+  const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const page = pages.find((page) => page.id === selectedPageId);
-  if (!page) return null;
-
-  const bspTree = bspTrees.get(page.bspTreeId);
-  if (!bspTree) return null;
+  useEffect(() => {
+    return () => {
+      if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
+    };
+  }, []);
 
   const saveContent = (htmlContent: string) => {
-    const newBspTree = updateNode(bspTree, node.id, (currentNode) => {
-      return {
-        ...currentNode,
-        value: htmlContent,
-      };
-    });
+    if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
+    saveTimeoutRef.current = setTimeout(async () => {
+      const currentPage = await db.pages.get(page.id);
+      if (!currentPage) return;
 
-    registerBspTree(page.bspTreeId, newBspTree);
+      const newBspTree = updateNode(
+        currentPage.bspTree,
+        node.id,
+        (currentNode) => ({
+          ...currentNode,
+          value: htmlContent,
+        }),
+      );
+
+      await db.pages.update(currentPage.id, { bspTree: newBspTree });
+    }, 250);
   };
 
   const editor = useEditor({
@@ -70,14 +73,14 @@ export default function TileLeaf({ node }: TileLeafProps) {
   }, [isSelected, editor]);
 
   useEffect(() => {
-    if (!editor) return;
+    if (!editor || !isSelected) return;
 
-    registerEditor(node.id, editor);
+    setSelectedEditor(editor);
 
     return () => {
-      unregisterEditor(node.id);
+      setSelectedEditor(null);
     };
-  }, [editor, node.id, registerEditor, unregisterEditor]);
+  }, [editor, isSelected, setSelectedEditor]);
 
   return (
     <div
