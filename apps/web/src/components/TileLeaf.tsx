@@ -82,7 +82,9 @@ export default function TileLeaf({ node }: TileLeafProps) {
   return (
     <div
       className={`w-full h-full overflow-clip ${
-        isSelected ? "border-2 border-blue-500" : "border"
+        isSelected
+          ? "border border-blue-500 ring ring-inset ring-blue-500"
+          : "border"
       }`}
     >
       <EditorContent
