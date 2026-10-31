@@ -231,12 +231,18 @@ importers:
       '@tanstack/react-router-devtools':
         specifier: ^1.167.2
         version: 1.167.2(@tanstack/react-router@1.170.38(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(@tanstack/router-core@1.171.32)(csstype@3.2.3)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
+      '@tiptap/core':
+        specifier: 3.31.4
+        version: 3.31.4(@tiptap/pm@3.31.4)
       '@tiptap/extension-image':
         specifier: ^3.31.4
         version: 3.31.4(@tiptap/core@3.31.4(@tiptap/pm@3.31.4))
       '@tiptap/extension-mathematics':
         specifier: ^3.31.4
         version: 3.31.4(@tiptap/core@3.31.4(@tiptap/pm@3.31.4))(@tiptap/pm@3.31.4)(katex@0.19.0)
+      '@tiptap/extension-text-style':
+        specifier: 3.31.4
+        version: 3.31.4(@tiptap/core@3.31.4(@tiptap/pm@3.31.4))
       '@tiptap/pm':
         specifier: ^3.31.4
         version: 3.31.4
@@ -1162,6 +1168,11 @@ packages:
 
   '@tiptap/extension-strike@3.31.4':
     resolution: {integrity: sha512-4MBr63TJIMqxCjE+gAPdlY1IdELgvbAP516K3Ntn/BkcpEbEoPMEYVz+XTxULyHQEuARDO6jsXPPxRXpA74jaw==}
+    peerDependencies:
+      '@tiptap/core': 3.31.4
+
+  '@tiptap/extension-text-style@3.31.4':
+    resolution: {integrity: sha512-djeemliEWmqs3cJrUyMG+17HbjHyf6D/0NkIHl/RkVHYOCX1AYMZ7r+XLefApSNBCAx/aFh1hJzaMlnGbnTaAw==}
     peerDependencies:
       '@tiptap/core': 3.31.4
 
@@ -3038,6 +3049,10 @@ snapshots:
       '@tiptap/core': 3.31.4(@tiptap/pm@3.31.4)
 
   '@tiptap/extension-strike@3.31.4(@tiptap/core@3.31.4(@tiptap/pm@3.31.4))':
+    dependencies:
+      '@tiptap/core': 3.31.4(@tiptap/pm@3.31.4)
+
+  '@tiptap/extension-text-style@3.31.4(@tiptap/core@3.31.4(@tiptap/pm@3.31.4))':
     dependencies:
       '@tiptap/core': 3.31.4(@tiptap/pm@3.31.4)
 
