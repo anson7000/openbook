@@ -1,13 +1,14 @@
-import { type BSPNode } from "../lib/types";
+import { type BSPNode, type Page } from "../lib/types";
 import { useEditorStore } from "../store/useEditorStore";
 import TileLeaf from "./TileLeaf";
 import TileSplit from "./TileSplit";
 
 type TileProps = {
   node: BSPNode;
+  page: Page;
 };
 
-export default function Tile({ node }: TileProps) {
+export default function Tile({ node, page }: TileProps) {
   const { setSelectedTileId } = useEditorStore();
 
   const selectTile = (e: React.MouseEvent) => {
@@ -18,9 +19,9 @@ export default function Tile({ node }: TileProps) {
   return (
     <div className={`w-full h-full`} onPointerDown={selectTile}>
       {node.type === "split" ? (
-        <TileSplit node={node} axis={node.axis} />
+        <TileSplit node={node} page={page} />
       ) : (
-        <TileLeaf node={node} />
+        <TileLeaf node={node} page={page} />
       )}
     </div>
   );

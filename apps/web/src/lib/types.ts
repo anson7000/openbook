@@ -19,5 +19,12 @@ export type BSPNode = LeafNode | SplitNode;
 export type Page = {
   id: string;
   name: string;
-  bspTreeId: string;
-}
+  order: number;
+  bspTree: BSPNode;
+  cheatsheetId: string;
+};
+
+export type Cheatsheet = {
+  id: string;
+  name: string;
+};
