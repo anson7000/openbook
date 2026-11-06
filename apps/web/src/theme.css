@@ -123,11 +123,11 @@
 }
 
 @page {
-  size: A4 landscape;
+  size: A4 portrait;
   margin: 0;
 }
 
-/* Hide everything except the print-page class when printing */
+/* Hide everything except the print pages when printing */
 @media print {
   html,
   body,
@@ -145,16 +145,79 @@
     visibility: visible;
   }
 
-  /* Undo the canvas zoom so the page prints at its natural size. */
+  /* The panels are editor chrome and must not take part in the printed layout. */
+  #root aside {
+    display: none !important;
+  }
+
+  /* The app shell is clipped to the viewport; let the printed pages flow past it. */
+  #root > div:has(> .print-canvas) {
+    display: block !important;
+    height: auto !important;
+    overflow: visible !important;
+  }
+
+  #root .print-canvas {
+    display: block !important;
+    height: auto !important;
+    overflow: visible !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  /* Every page is printed as one sheet of A4 portrait paper. */
+  #root .print-stage {
+    display: block !important;
+    position: relative !important;
+    width: 210mm !important;
+    height: 297mm !important;
+    margin: 0 !important;
+    overflow: hidden !important;
+    break-after: page;
+    page-break-after: always;
+  }
+
+  /* Undo the canvas zoom so pages print at their natural size. */
   #root .canvas-zoom {
+    position: static !important;
     transform: none !important;
   }
 
-  /* Anchor the page to the top-left of the paper instead of the scroll canvas. */
   #root .print-page {
-    position: fixed !important;
+    position: absolute !important;
     top: 0 !important;
     left: 0 !important;
     margin: 0 !important;
+    border: 0 !important;
+    box-shadow: none !important;
+  }
+
+  #root .print-page[data-orientation="portrait"] {
+    width: 210mm !important;
+    height: 297mm !important;
+  }
+
+  /* Horizontal pages are rotated onto the portrait sheet. */
+  #root .print-page[data-orientation="landscape"] {
+    width: 297mm !important;
+    height: 210mm !important;
+    transform-origin: top left !important;
+    transform: translateX(210mm) rotate(90deg) !important;
+  }
+
+  /* Avoid a trailing blank sheet after the last page. */
+  #root .print-stage:last-child {
+    break-after: auto;
+    page-break-after: auto;
+  }
+
+  /* Selection is cleared before printing; this keeps the editing ring out of
+     the output on browsers that never fire beforeprint. */
+  #root .print-page .ring-blue-500 {
+    box-shadow: none !important;
+  }
+
+  #root .print-page .border-blue-500 {
+    border-color: currentColor !important;
   }
 }

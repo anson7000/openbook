@@ -1,5 +1,8 @@
 import { useEffect, useState } from "react";
+import { useLiveQuery } from "dexie-react-hooks";
+import RotateIcon from "../assets/rotate_googleicons.svg?react";
 import { BASE_FONT_SIZE_PX } from "../lib/fontSizeStrut";
+import { db } from "../lib/db";
 import { useEditorStore } from "../store/useEditorStore";
 
 type MarkState = {
@@ -21,8 +24,23 @@ const FONT_SIZES = [8, 9, 10, 11, 12, 14, 16, 18, 20, 24, 32, 48, 60, 72, 96];
 const BASE_FONT_SIZE = `${BASE_FONT_SIZE_PX}px`;
 
 export default function RightPanel() {
-  const { selectedEditor: editor } = useEditorStore();
+  const { selectedEditor: editor, selectedPageId } = useEditorStore();
   const [marks, setMarks] = useState(inactiveMarks);
+
+  const page = useLiveQuery(
+    () => (selectedPageId ? db.pages.get(selectedPageId) : undefined),
+    [selectedPageId],
+  );
+
+  const orientation = page?.orientation ?? "portrait";
+
+  const toggleOrientation = () => {
+    if (!page) return;
+
+    db.pages.update(page.id, {
+      orientation: orientation === "portrait" ? "landscape" : "portrait",
+    });
+  };
 
   useEffect(() => {
     if (!editor) {
@@ -83,6 +101,24 @@ export default function RightPanel() {
       aria-label="Formatting panel"
       className="h-full w-80 shrink-0 border-l bg-background p-6"
     >
+      <div className="mt-4 flex justify-end">
+        <button
+          type="button"
+          className="flex size-9 items-center justify-center rounded transition-colors hover:bg-muted disabled:cursor-not-allowed disabled:opacity-40"
+          aria-label="Toggle page orientation"
+          aria-pressed={orientation === "landscape"}
+          title={
+            orientation === "portrait"
+              ? "Page is vertical — switch to horizontal"
+              : "Page is horizontal — switch to vertical"
+          }
+          disabled={!page}
+          onClick={toggleOrientation}
+        >
+          <RotateIcon className="size-6" aria-hidden="true" />
+        </button>
+      </div>
+
       <div
         className="mt-4 flex gap-1"
         role="toolbar"
