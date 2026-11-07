@@ -31,3 +31,9 @@ export type Cheatsheet = {
   id: string;
   name: string;
 };
+
+export type Image = {
+  id: string;
+  blob: Blob;
+  mimeType: string;
+};

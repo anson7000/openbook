@@ -1,4 +1,4 @@
-import { EditorContent, useEditor } from "@tiptap/react";
+import { Editor, EditorContent, useEditor } from "@tiptap/react";
 import { type LeafNode, type Page } from "../lib/types";
 import { updateNode } from "../lib/bspTree";
 import { useEditorStore } from "../store/useEditorStore";
@@ -11,6 +11,20 @@ import FileHandler from "@tiptap/extension-file-handler";
 import { useEffect, useRef } from "react";
 import { db } from "../lib/db";
 
+const StoredImage = Image.extend({
+  addAttributes() {
+    return {
+      ...this.parent?.(),
+      imageId: {
+        default: null,
+        parseHTML: (element) => element.getAttribute("data-image-id"),
+        renderHTML: (attributes) =>
+          attributes.imageId ? { "data-image-id": attributes.imageId } : {},
+      },
+    };
+  },
+});
+
 type TileLeafProps = {
   node: LeafNode;
   page: Page;
@@ -19,38 +33,13 @@ type TileLeafProps = {
 export default function TileLeaf({ node, page }: TileLeafProps) {
   const { selectedTileId, setSelectedEditor } = useEditorStore();
   const isSelected = selectedTileId === node.id;
+  const objectUrlsRef = useRef<string[]>([]);
   const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  useEffect(() => {
-    return () => {
-      if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
-    };
-  }, []);
-
-  const saveContent = (htmlContent: string) => {
-    if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
-    saveTimeoutRef.current = setTimeout(async () => {
-      const currentPage = await db.pages.get(page.id);
-      if (!currentPage) return;
-
-      const newBspTree = updateNode(
-        currentPage.bspTree,
-        node.id,
-        (currentNode) => ({
-          ...currentNode,
-          value: htmlContent,
-        }),
-      );
-
-      await db.pages.update(currentPage.id, { bspTree: newBspTree });
-    }, 250);
-  };
-
   const editor = useEditor({
     extensions: [
       StarterKit,
       Mathematics,
-      Image.configure({
+      StoredImage.configure({
         resize: {
           enabled: true,
           alwaysPreserveAspectRatio: true,
@@ -68,21 +57,7 @@ export default function TileLeaf({ node, page }: TileLeafProps) {
         ],
         onDrop: (currentEditor, files, pos) => {
           files.forEach((file) => {
-            const fileReader = new FileReader();
-
-            fileReader.readAsDataURL(file);
-            fileReader.onload = () => {
-              currentEditor
-                .chain()
-                .insertContentAt(pos, {
-                  type: "image",
-                  attrs: {
-                    src: fileReader.result,
-                  },
-                })
-                .focus()
-                .run();
-            };
+            insertImage(currentEditor, file, pos);
           });
         },
         onPaste: (currentEditor, files, htmlContent) => {
@@ -94,21 +69,11 @@ export default function TileLeaf({ node, page }: TileLeafProps) {
               return false;
             }
 
-            const fileReader = new FileReader();
-
-            fileReader.readAsDataURL(file);
-            fileReader.onload = () => {
-              currentEditor
-                .chain()
-                .insertContentAt(currentEditor.state.selection.anchor, {
-                  type: "image",
-                  attrs: {
-                    src: fileReader.result,
-                  },
-                })
-                .focus()
-                .run();
-            };
+            insertImage(
+              currentEditor,
+              file,
+              currentEditor.state.selection.from,
+            );
           });
         },
       }),
@@ -122,24 +87,121 @@ export default function TileLeaf({ node, page }: TileLeafProps) {
 
     onUpdate: ({ editor: currentEditor }) => {
       saveContent(currentEditor.getHTML());
+      console.log(currentEditor.getJSON());
     },
   });
 
   useEffect(() => {
-    if (!editor || !isSelected) return;
-
-    editor?.commands.focus();
-  }, [isSelected, editor]);
+    return () => {
+      if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
+      objectUrlsRef.current.forEach((url) => URL.revokeObjectURL(url));
+    };
+  }, []);
 
   useEffect(() => {
     if (!editor || !isSelected) return;
 
     setSelectedEditor(editor);
+    editor?.commands.focus();
 
     return () => {
       setSelectedEditor(null);
     };
-  }, [editor, isSelected, setSelectedEditor]);
+  }, [isSelected]);
+
+  useEffect(() => {
+    if (!editor) return;
+
+    const resolveStoredImages = async () => {
+      const content = editor.getHTML();
+      const documentFragment = new DOMParser().parseFromString(
+        content,
+        "text/html",
+      );
+      const images = Array.from(
+        documentFragment.querySelectorAll("img[data-image-id]"),
+      );
+
+      await Promise.all(
+        images.map(async (image) => {
+          const imageId = image.getAttribute("data-image-id");
+          if (!imageId) return;
+
+          const asset = await db.images.get(imageId);
+          if (!asset) return;
+
+          const objectUrl = URL.createObjectURL(asset.blob);
+          objectUrlsRef.current.push(objectUrl);
+          image.setAttribute("src", objectUrl);
+        }),
+      );
+
+      editor.commands.setContent(documentFragment.body.innerHTML, {
+        emitUpdate: false,
+      });
+    };
+
+    void resolveStoredImages();
+  }, [editor]);
+
+  const saveContent = (htmlContent: string) => {
+    if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
+    saveTimeoutRef.current = setTimeout(async () => {
+      const documentFragment = new DOMParser().parseFromString(
+        htmlContent,
+        "text/html",
+      );
+
+      documentFragment
+        .querySelectorAll("img[data-image-id]")
+        .forEach((image) => {
+          const imageId = image.getAttribute("data-image-id");
+          if (imageId) image.setAttribute("src", `stored-image:${imageId}`);
+        });
+
+      const currentPage = await db.pages.get(page.id);
+      if (!currentPage) return;
+
+      const newBspTree = updateNode(
+        currentPage.bspTree,
+        node.id,
+        (currentNode) => ({
+          ...currentNode,
+          value: documentFragment.body.innerHTML,
+        }),
+      );
+
+      await db.pages.update(currentPage.id, { bspTree: newBspTree });
+    }, 250);
+  };
+
+  const insertImage = async (
+    currentEditor: Editor,
+    file: File,
+    position: number,
+  ) => {
+    const imageId = crypto.randomUUID();
+    await db.images.put({
+      id: imageId,
+      blob: file,
+      mimeType: file.type,
+    });
+
+    const objectUrl = URL.createObjectURL(file);
+    objectUrlsRef.current.push(objectUrl);
+
+    currentEditor
+      .chain()
+      .insertContentAt(position, {
+        type: "image",
+        attrs: {
+          src: objectUrl,
+          imageId,
+        },
+      })
+      .focus()
+      .run();
+  };
 
   return (
     <div
