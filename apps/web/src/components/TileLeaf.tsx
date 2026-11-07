@@ -7,6 +7,7 @@ import { FontSize, TextStyle } from "@tiptap/extension-text-style";
 import { FontSizeStrut } from "../lib/fontSizeStrut";
 import { Mathematics, migrateMathStrings } from "@tiptap/extension-mathematics";
 import Image from "@tiptap/extension-image";
+import FileHandler from "@tiptap/extension-file-handler";
 import { useEffect, useRef } from "react";
 import { db } from "../lib/db";
 
@@ -49,10 +50,68 @@ export default function TileLeaf({ node, page }: TileLeafProps) {
     extensions: [
       StarterKit,
       Mathematics,
-      Image,
+      Image.configure({
+        resize: {
+          enabled: true,
+          alwaysPreserveAspectRatio: true,
+        },
+      }),
       TextStyle,
       FontSize,
       FontSizeStrut,
+      FileHandler.configure({
+        allowedMimeTypes: [
+          "image/png",
+          "image/jpeg",
+          "image/gif",
+          "image/webp",
+        ],
+        onDrop: (currentEditor, files, pos) => {
+          files.forEach((file) => {
+            const fileReader = new FileReader();
+
+            fileReader.readAsDataURL(file);
+            fileReader.onload = () => {
+              currentEditor
+                .chain()
+                .insertContentAt(pos, {
+                  type: "image",
+                  attrs: {
+                    src: fileReader.result,
+                  },
+                })
+                .focus()
+                .run();
+            };
+          });
+        },
+        onPaste: (currentEditor, files, htmlContent) => {
+          files.forEach((file) => {
+            if (htmlContent) {
+              // if there is htmlContent, stop manual insertion & let other extensions handle insertion via inputRule
+              // you could extract the pasted file from this url string and upload it to a server for example
+              console.log(htmlContent); // oxlint-disable-line no-console
+              return false;
+            }
+
+            const fileReader = new FileReader();
+
+            fileReader.readAsDataURL(file);
+            fileReader.onload = () => {
+              currentEditor
+                .chain()
+                .insertContentAt(currentEditor.state.selection.anchor, {
+                  type: "image",
+                  attrs: {
+                    src: fileReader.result,
+                  },
+                })
+                .focus()
+                .run();
+            };
+          });
+        },
+      }),
     ],
     editable: true,
     content: node.value,
