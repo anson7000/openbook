@@ -1,3 +1,4 @@
+import { type JSONContent } from "@tiptap/core";
 import { Editor, EditorContent, useEditor } from "@tiptap/react";
 import { type LeafNode, type Page } from "../lib/types";
 import { updateNode } from "../lib/bspTree";
@@ -86,8 +87,7 @@ export default function TileLeaf({ node, page }: TileLeafProps) {
     },
 
     onUpdate: ({ editor: currentEditor }) => {
-      saveContent(currentEditor.getHTML());
-      console.log(currentEditor.getJSON());
+      saveContent(currentEditor.getJSON());
     },
   });
 
@@ -113,18 +113,12 @@ export default function TileLeaf({ node, page }: TileLeafProps) {
     if (!editor) return;
 
     const resolveStoredImages = async () => {
-      const content = editor.getHTML();
-      const documentFragment = new DOMParser().parseFromString(
-        content,
-        "text/html",
-      );
-      const images = Array.from(
-        documentFragment.querySelectorAll("img[data-image-id]"),
-      );
+      const content = editor.getJSON();
+      const images = findImageNodes(content);
 
       await Promise.all(
         images.map(async (image) => {
-          const imageId = image.getAttribute("data-image-id");
+          const imageId = image.attrs?.imageId;
           if (!imageId) return;
 
           const asset = await db.images.get(imageId);
@@ -132,33 +126,21 @@ export default function TileLeaf({ node, page }: TileLeafProps) {
 
           const objectUrl = URL.createObjectURL(asset.blob);
           objectUrlsRef.current.push(objectUrl);
-          image.setAttribute("src", objectUrl);
+          image.attrs = { ...image.attrs, src: objectUrl };
         }),
       );
 
-      editor.commands.setContent(documentFragment.body.innerHTML, {
+      editor.commands.setContent(content, {
         emitUpdate: false,
       });
     };
 
-    void resolveStoredImages();
+    resolveStoredImages();
   }, [editor]);
 
-  const saveContent = (htmlContent: string) => {
+  const saveContent = (jsonContent: JSONContent) => {
     if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
     saveTimeoutRef.current = setTimeout(async () => {
-      const documentFragment = new DOMParser().parseFromString(
-        htmlContent,
-        "text/html",
-      );
-
-      documentFragment
-        .querySelectorAll("img[data-image-id]")
-        .forEach((image) => {
-          const imageId = image.getAttribute("data-image-id");
-          if (imageId) image.setAttribute("src", `stored-image:${imageId}`);
-        });
-
       const currentPage = await db.pages.get(page.id);
       if (!currentPage) return;
 
@@ -167,12 +149,21 @@ export default function TileLeaf({ node, page }: TileLeafProps) {
         node.id,
         (currentNode) => ({
           ...currentNode,
-          value: documentFragment.body.innerHTML,
+          value: jsonContent,
         }),
       );
 
       await db.pages.update(currentPage.id, { bspTree: newBspTree });
     }, 250);
+  };
+
+  const findImageNodes = (content: JSONContent): JSONContent[] => {
+    const images: JSONContent[] = [];
+    content.content?.forEach((child) => {
+      if (child.type === "image") images.push(child);
+      images.push(...findImageNodes(child));
+    });
+    return images;
   };
 
   const insertImage = async (
@@ -196,7 +187,7 @@ export default function TileLeaf({ node, page }: TileLeafProps) {
         type: "image",
         attrs: {
           src: objectUrl,
-          imageId,
+          imageId: imageId,
         },
       })
       .focus()

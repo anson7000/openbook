@@ -1,8 +1,10 @@
+import { type JSONContent } from "@tiptap/core";
+
 export type LeafNode = {
   id: string;
   type: "leaf";
   name: string;
-  value: string;
+  value: JSONContent;
 };
 
 export type SplitNode = {
