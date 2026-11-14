@@ -57,7 +57,7 @@ export default function Page({ page, width, height }: PageProps) {
         id: crypto.randomUUID(),
         type: "leaf",
         name: "New Tile",
-        value: "",
+        value: { type: "doc", content: [{ type: "paragraph" }] },
       };
 
       const newBspTree = updateNode(page.bspTree, selectedTileId, (node) => {

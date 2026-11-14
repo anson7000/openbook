@@ -67,7 +67,7 @@ export default function LeftPanel() {
       id: crypto.randomUUID(),
       type: "leaf" as const,
       name: "New Tile",
-      value: "",
+      value: { type: "doc", content: [{ type: "paragraph" }] },
     };
 
     const newPage = {
