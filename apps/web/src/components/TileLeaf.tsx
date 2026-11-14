@@ -31,9 +31,12 @@ type TileLeafProps = {
   page: Page;
 };
 
+let activeDragEditorId: string | null = null;
+
 export default function TileLeaf({ node, page }: TileLeafProps) {
   const { selectedTileId, setSelectedEditor } = useEditorStore();
   const isSelected = selectedTileId === node.id;
+  const editorIdRef = useRef(crypto.randomUUID());
   const objectUrlsRef = useRef<string[]>([]);
   const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const editor = useEditor({
@@ -81,6 +84,34 @@ export default function TileLeaf({ node, page }: TileLeafProps) {
     ],
     editable: true,
     content: node.value,
+    editorProps: {
+      handleDOMEvents: {
+        dragstart: (_view, event) => {
+          activeDragEditorId = editorIdRef.current;
+          event.dataTransfer?.setData(
+            "application/x-openbook-editor",
+            editorIdRef.current,
+          );
+          return false;
+        },
+        dragend: () => {
+          activeDragEditorId = null;
+          return false;
+        },
+        drop: (_view, event) => {
+          const sourceEditorId =
+            activeDragEditorId ??
+            event.dataTransfer?.getData("application/x-openbook-editor");
+
+          if (sourceEditorId && sourceEditorId !== editorIdRef.current) {
+            event.preventDefault();
+            return true;
+          }
+
+          return false;
+        },
+      },
+    },
 
     onCreate: ({ editor: currentEditor }) => {
       migrateMathStrings(currentEditor);
