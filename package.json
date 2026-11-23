@@ -3,25 +3,19 @@
   "version": "1.0.0",
   "scripts": {
     "build": "turbo run build",
-    "dev": "turbo run dev",
-    "lint": "turbo run lint",
-    "check-types": "turbo run check-types",
-    "format": "turbo run format",
-    "deploy-build": "turbo run lint build"
+    "dev": "turbo run dev"
   },
-  "packageManager": "pnpm@11.10.0",
+  "packageManager": "pnpm@12.23.0",
   "devEngines": {
     "packageManager": {
       "name": "pnpm",
-      "version": "11.10.0",
+      "version": "12.23.0",
       "onFail": "download"
     }
   },
   "type": "module",
   "devDependencies": {
-    "prettier": "^3.9.6",
     "turbo": "^2.10.7",
-    "typescript": "~6.0.3",
-    "eslint": "^10.7.0"
+    "typescript": "~6.0.3"
   }
 }
