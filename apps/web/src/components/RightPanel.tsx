@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
+import { useRef } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
 import RotateIcon from "../assets/rotate_googleicons.svg?react";
 import { BASE_FONT_SIZE_PX } from "../lib/fontSizeStrut";
 import { db } from "../lib/db";
+import { exportSaveFile, importSaveFile } from "../lib/export";
 import { useEditorStore } from "../store/useEditorStore";
 
 type MarkState = {
@@ -26,6 +28,7 @@ const BASE_FONT_SIZE = `${BASE_FONT_SIZE_PX}px`;
 export default function RightPanel() {
   const { selectedEditor: editor, selectedPageId } = useEditorStore();
   const [marks, setMarks] = useState(inactiveMarks);
+  const importInputRef = useRef<HTMLInputElement>(null);
 
   const page = useLiveQuery(
     () => (selectedPageId ? db.pages.get(selectedPageId) : undefined),
@@ -40,6 +43,45 @@ export default function RightPanel() {
     db.pages.update(page.id, {
       orientation: orientation === "portrait" ? "landscape" : "portrait",
     });
+  };
+
+  const handleExport = async () => {
+    try {
+      await exportSaveFile();
+    } catch (error) {
+      window.alert(
+        error instanceof Error ? error.message : "Unable to export save file",
+      );
+    }
+  };
+
+  const handleImport = () => {
+    importInputRef.current?.click();
+  };
+
+  const handleImportFile = async (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+    if (!file) return;
+
+    if (
+      !window.confirm(
+        "Importing a save file will replace your local data. Continue?",
+      )
+    ) {
+      return;
+    }
+
+    try {
+      await importSaveFile(file);
+      window.location.reload();
+    } catch (error) {
+      window.alert(
+        error instanceof Error ? error.message : "Unable to import save file",
+      );
+    }
   };
 
   useEffect(() => {
@@ -102,6 +144,29 @@ export default function RightPanel() {
       className="h-full w-80 shrink-0 border-l bg-background p-6"
     >
       <div className="mt-4 flex justify-end">
+        <input
+          ref={importInputRef}
+          type="file"
+          accept=".openbook,application/vnd.openbook+zip"
+          className="hidden"
+          onChange={handleImportFile}
+        />
+        <div className="mr-2 flex gap-1">
+          <button
+            type="button"
+            className="rounded px-2 py-1 text-sm transition-colors hover:bg-muted"
+            onClick={handleExport}
+          >
+            export
+          </button>
+          <button
+            type="button"
+            className="rounded px-2 py-1 text-sm transition-colors hover:bg-muted"
+            onClick={handleImport}
+          >
+            import
+          </button>
+        </div>
         <button
           type="button"
           className="flex size-9 items-center justify-center rounded transition-colors hover:bg-muted disabled:cursor-not-allowed disabled:opacity-40"
