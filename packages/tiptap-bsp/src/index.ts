@@ -1,3 +1,3 @@
-export function hello() {
-  console.log("Hello from tiptap-bsp!");
-}
+import { Example } from "./extensions/example";
+
+export default Example;
