@@ -1,0 +1,41 @@
+{
+  "name": "@openbook/tiptap-bsp",
+  "version": "1.0.0",
+  "description": "BSP extension for tiptap",
+  "scripts": {
+    "build": "tsdown",
+    "dev": "tsdown --watch"
+  },
+  "files": [
+    "src",
+    "dist"
+  ],
+  "type": "module",
+  "main": "dist/index.cjs",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.mts",
+  "exports": {
+    ".": {
+      "types": {
+        "import": "./dist/index.d.mts",
+        "require": "./dist/index.d.cts"
+      },
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "devDependencies": {
+    "@openbook/typescript-config": "workspace:*",
+    "@tiptap/core": "^3.33.0",
+    "@tiptap/react": "^3.33.0",
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.5",
+    "react": "^19.2.8",
+    "tsdown": "^0.23.7"
+  },
+  "peerDependencies": {
+    "@tiptap/core": "^3.33.0",
+    "@tiptap/react": "^3.33.0",
+    "react": "^19.2.0"
+  }
+}

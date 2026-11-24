@@ -6,23 +6,10 @@
       "dependsOn": ["^build"],
       "outputs": ["dist/**"],
       "cache": true,
-      "env": ["PORT", "NODE_ENV"]
-    },
-    "lint": {
-      "dependsOn": ["^lint"],
-      "cache": true,
-      "env": ["PORT", "NODE_ENV"]
-    },
-    "check-types": {
-      "dependsOn": ["^check-types"],
-      "cache": true
     },
     "dev": {
       "cache": false,
       "persistent": true
-    },
-    "format": {
-      "cache": true
     }
   }
 }

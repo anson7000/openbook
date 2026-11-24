@@ -1,0 +1,8 @@
+{
+  "extends": "@openbook/typescript-config/tsconfig.base.json",
+  "include": ["src"],
+  "compilerOptions": {
+    "lib": ["dom", "esnext"],
+    "jsx": "react-jsx"
+  }
+}
