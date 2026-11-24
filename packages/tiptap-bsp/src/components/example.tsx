@@ -1,6 +1,6 @@
 import { NodeViewContent, NodeViewWrapper } from '@tiptap/react'
 
-export default () => {
+export const ExampleComponent = () => {
   return (
     <NodeViewWrapper className="react-component">
       <label contentEditable={false}>React Component</label>

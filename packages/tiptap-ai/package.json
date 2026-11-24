@@ -25,7 +25,11 @@
     }
   },
   "devDependencies": {
-    "tsdown": "^0.23.7",
-    "@openbook/typescript-config": "workspace:*"
+    "@openbook/typescript-config": "workspace:*",
+    "@tiptap/core": "^3.33.0",
+    "tsdown": "^0.23.7"
+  },
+  "peerDependencies": {
+    "@tiptap/core": "^3.33.0"
   }
 }
