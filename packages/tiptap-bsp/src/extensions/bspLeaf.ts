@@ -1,6 +1,6 @@
 import { mergeAttributes, Node } from "@tiptap/core";
 import { ReactNodeViewRenderer } from "@tiptap/react";
-import { ExampleComponent } from "../components/example";
+import { BspLeafView } from "../components/BspLeafView";
 
 export const BspLeaf = Node.create({
   name: "bspLeaf",
@@ -8,6 +8,10 @@ export const BspLeaf = Node.create({
   group: "block",
 
   content: "inline*",
+
+  isolating: true,
+
+  defining: true,
 
   parseHTML() {
     return [
@@ -21,7 +25,13 @@ export const BspLeaf = Node.create({
     return ["bsp-leaf", mergeAttributes(HTMLAttributes), 0];
   },
 
+  addKeyboardShortcuts() {
+  return {
+    Enter: () => this.editor.commands.insertContent('\n'),
+  }
+},
+
   addNodeView() {
-    return ReactNodeViewRenderer(ExampleComponent);
+    return ReactNodeViewRenderer(BspLeafView);
   },
 });

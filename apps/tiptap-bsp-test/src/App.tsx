@@ -3,7 +3,7 @@ import "./App.css";
 
 const App = () => {
   return (
-    <div>
+    <div className="a4-page">
       <Tiptap />
     </div>
   );
